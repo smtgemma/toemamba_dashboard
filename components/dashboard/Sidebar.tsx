@@ -44,11 +44,11 @@ export const Sidebar = () => {
       <div className="mb-10 px-2">
         <Link href="/dashboard" className="flex items-center gap-2">
           <Image
-            src="/logo.png" // Replace with actual logo path
+            src="/logo.png"
             alt="Shyfty"
-            width={120}
-            height={40}
-            className="h-10 w-auto"
+            width={250}
+            height={32}
+            className="h-[100px] w-auto"
           />
         </Link>
       </div>

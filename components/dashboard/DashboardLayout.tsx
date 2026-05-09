@@ -35,9 +35,9 @@ export const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           )}>
             <div className="absolute right-4 top-4">
-               <button onClick={() => setIsSidebarOpen(false)}>
-                 <X className="w-6 h-6 text-gray-500" />
-               </button>
+              <button onClick={() => setIsSidebarOpen(false)}>
+                <X className="w-6 h-6 text-gray-500" />
+              </button>
             </div>
             <Sidebar />
           </div>
@@ -46,12 +46,12 @@ export const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
         <main className="flex-1 overflow-y-auto">
           {/* Mobile Header for Admin */}
           <header className="lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-             <Image src="/logo.png" alt="Shyfty" width={80} height={24} className="h-6 w-auto" />
-             <button onClick={() => setIsSidebarOpen(true)}>
-               <Menu className="w-6 h-6 text-gray-500" />
-             </button>
+            <Image src="/logo.png" alt="Shyfty" width={80} height={24} className="h-6 w-auto" />
+            <button onClick={() => setIsSidebarOpen(true)}>
+              <Menu className="w-6 h-6 text-gray-500" />
+            </button>
           </header>
-          
+
           <div className="p-6 lg:p-8">
             {children}
           </div>
@@ -62,20 +62,20 @@ export const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
 
   // Supervisor Layout (No Sidebar)
   return (
-    <div className="min-h-screen bg-[#F9FAFB]">
-      <header className="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between">
+    <div className="min-h-screen  bg-[#F9FAFB]">
+      <header className="bg-white border-b h-20 border-gray-100 px-8 lg:px-16 py-4 flex items-center justify-between">
         <Image
           src="/logo.png"
           alt="Shyfty"
-          width={100}
+          width={250}
           height={32}
-          className="h-8 w-auto"
+          className="h-[100px] w-auto"
         />
         <div className="flex items-center gap-4">
-           {/* Simple Avatar for Supervisor */}
-           <Link href="/dashboard/profile" className="w-10 h-10 rounded-full bg-gray-200 border-2 border-white shadow-sm overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
-              <Image src="/avatar-placeholder.png" alt="User" width={40} height={40} />
-           </Link>
+          {/* Simple Avatar for Supervisor */}
+          <Link href="/dashboard/profile" className="w-10 h-10 rounded-full bg-gray-200 border-2 border-white shadow-sm overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
+            <Image src="/avatar-placeholder.png" alt="User" width={40} height={40} />
+          </Link>
         </div>
       </header>
       <main className="max-w-7xl mx-auto p-8">
