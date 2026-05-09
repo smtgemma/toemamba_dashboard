@@ -7,13 +7,17 @@ import { StatsCards } from "@/components/dashboard/StatsCards";
 import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import { IssueCard } from "@/components/dashboard/IssueCard";
 import { DUMMY_ISSUES } from "@/constants/dummy";
+import AppPagination from "@/components/shared/Pagination";
+
+const ITEMS_PER_PAGE = 5;
 
 export default function DashboardPage() {
   const [statusFilter, setStatusFilter] = useState("Open");
   const [priorityFilter, setPriorityFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Simplified role handling for now
-  const role = "Super";
+  const role = "Super"; 
   const displayRole = "Shift Supervisor";
 
   const filteredIssues = useMemo(() => {
@@ -22,6 +26,18 @@ export default function DashboardPage() {
       const matchesPriority = !priorityFilter || issue.priority === priorityFilter;
       return matchesStatus && matchesPriority;
     });
+  }, [statusFilter, priorityFilter]);
+
+  const totalPages = Math.ceil(filteredIssues.length / ITEMS_PER_PAGE);
+  
+  const paginatedIssues = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredIssues.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredIssues, currentPage]);
+
+  // Reset to first page when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
   }, [statusFilter, priorityFilter]);
 
   return (
@@ -37,8 +53,8 @@ export default function DashboardPage() {
       />
 
       <div className="space-y-4">
-        {filteredIssues.length > 0 ? (
-          filteredIssues.map((issue) => (
+        {paginatedIssues.length > 0 ? (
+          paginatedIssues.map((issue) => (
             <IssueCard key={issue.id} {...issue as any} />
           ))
         ) : (
@@ -47,6 +63,12 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      <AppPagination 
+        page={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </DashboardLayout>
   );
 }

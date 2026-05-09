@@ -19,7 +19,7 @@ export const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
     return (
       <div className="flex min-h-screen bg-[#F9FAFB]">
         {/* Sidebar for Desktop */}
-        <div className="hidden lg:block">
+        <div className="hidden lg:block sticky top-0 h-screen">
           <Sidebar />
         </div>
 
