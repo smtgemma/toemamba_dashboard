@@ -22,7 +22,9 @@ export const DashboardFilters = ({
 
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-      <h2 className="text-xl font-bold text-gray-900">Open Issues</h2>
+      <h2 className="text-xl font-bold text-gray-900">
+        {activeStatus === "All" ? "All Issues" : `${activeStatus} Issues`}
+      </h2>
 
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative">

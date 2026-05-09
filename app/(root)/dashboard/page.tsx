@@ -12,7 +12,7 @@ import AppPagination from "@/components/shared/Pagination";
 const ITEMS_PER_PAGE = 5;
 
 export default function DashboardPage() {
-  const [statusFilter, setStatusFilter] = useState("Open");
+  const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 

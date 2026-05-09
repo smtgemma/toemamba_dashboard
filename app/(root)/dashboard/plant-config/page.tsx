@@ -5,8 +5,8 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Trash2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { 
-  useAddShiftMutation, 
+import {
+  useAddShiftMutation,
   useDeleteShiftMutation,
   useAddLineMutation,
   useDeleteLineMutation,
@@ -54,7 +54,7 @@ export default function PlantConfigPage() {
   };
 
   const toggleLineStatus = (id: string) => {
-    setLines(lines.map(l => 
+    setLines(lines.map(l =>
       l.id === id ? { ...l, status: l.status === "Active" ? "Inactive" : "Active" } : l
     ));
   };
@@ -74,11 +74,11 @@ export default function PlantConfigPage() {
         <p className="text-sm text-gray-500 mt-1">Configure shifts, areas, and production lines</p>
       </div>
 
-      <div className="space-y-8 max-w-5xl">
+      <div className="space-y-8 max-w-">
         {/* Shift Setup */}
         <div className="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm">
           <h2 className="text-lg font-bold text-[#101828] mb-6">Shift Setup</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="space-y-2">
               <label className="text-sm font-bold text-gray-900">Shift Name</label>
@@ -132,7 +132,7 @@ export default function PlantConfigPage() {
         {/* Area / Line Setup */}
         <div className="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm">
           <h2 className="text-lg font-bold text-[#101828] mb-6">Area / Line Setup</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div className="space-y-2">
               <label className="text-sm font-bold text-gray-900">Area Name</label>
@@ -169,16 +169,16 @@ export default function PlantConfigPage() {
                   <span className="text-sm font-bold text-gray-700">{line.name}</span>
                   <span className={cn(
                     "px-3 py-1 rounded-lg text-[10px] font-bold border",
-                    line.status === "Active" 
-                      ? "bg-[#ECFDF3] text-[#027A48] border-[#ABEFC6]" 
+                    line.status === "Active"
+                      ? "bg-[#ECFDF3] text-[#027A48] border-[#ABEFC6]"
                       : "bg-[#F2F4F7] text-[#344054] border-[#EAECF0]"
                   )}>
                     {line.status}
                   </span>
                 </div>
-                
+
                 <div className="flex items-center gap-4">
-                  <button 
+                  <button
                     onClick={() => toggleLineStatus(line.id)}
                     className={cn(
                       "w-10 h-5 rounded-full transition-all relative p-1",
