@@ -16,8 +16,7 @@ export const DUMMY_ISSUES = [
   {
     id: "1",
     priority: "P1",
-    content:
-      "Electrical panel showing intermittent fault codes. Risk of unexpected shutdown on Line A.",
+    content: "Electrical panel showing intermittent fault codes. Risk of unexpected shutdown on Line A.",
     category: "Maintenance",
     line: "Line 2",
     date: "02,feb,2025",
@@ -26,8 +25,7 @@ export const DUMMY_ISSUES = [
   {
     id: "2",
     priority: "P1",
-    content:
-      "Safety guard missing on conveyor belt. High risk of injury during operation.",
+    content: "Safety guard missing on conveyor belt. High risk of injury during operation.",
     category: "Safety",
     line: "Line 3",
     date: "02,feb,2025",
@@ -36,8 +34,7 @@ export const DUMMY_ISSUES = [
   {
     id: "3",
     priority: "P2",
-    content:
-      "Slight vibration detected in the main motor housing. Monitoring required.",
+    content: "Slight vibration detected in the main motor housing. Monitoring required.",
     category: "Production",
     line: "Line 1",
     date: "01,feb,2025",
@@ -46,8 +43,7 @@ export const DUMMY_ISSUES = [
   {
     id: "4",
     priority: "P3",
-    content:
-      "Oil leak near the hydraulic unit. Needs cleaning and seal replacement.",
+    content: "Oil leak near the hydraulic unit. Needs cleaning and seal replacement.",
     category: "Maintenance",
     line: "Line 4",
     date: "31,jan,2025",
@@ -56,8 +52,7 @@ export const DUMMY_ISSUES = [
   {
     id: "5",
     priority: "P1",
-    content:
-      "Critical pressure drop in the steam line. Investigating root cause.",
+    content: "Critical pressure drop in the steam line. Investigating root cause.",
     category: "Safety",
     line: "Line 2",
     date: "02,feb,2025",
@@ -94,5 +89,57 @@ export const DUMMY_STATS = [
     label: "Solved",
     value: "164",
     status: "Resolved",
+  },
+];
+
+export const DUMMY_USERS = [
+  {
+    id: "u1",
+    name: "John Martinez",
+    email: "alma.lawson@example.com",
+    role: "Admin",
+    line: "All Areas",
+    status: "Active",
+  },
+  {
+    id: "u2",
+    name: "Kathryn Murphy",
+    email: "jessica.hanson@example.com",
+    role: "Supervisor",
+    line: "Line 2",
+    status: "Active",
+  },
+  {
+    id: "u3",
+    name: "Cody Fisher",
+    email: "michelle.rivera@example.com",
+    role: "Staff",
+    staffRole: "Maintenance",
+    line: "Line 3",
+    status: "Active",
+  },
+  {
+    id: "u4",
+    name: "Guy Hawkins",
+    email: "bill.sanders@example.com",
+    role: "Supervisor",
+    line: "Line 4",
+    status: "In Active",
+  },
+  {
+    id: "u5",
+    name: "Ralph Edwards",
+    email: "tanya.hill@example.com",
+    role: "Operator",
+    line: "Line 4",
+    status: "In Active",
+  },
+  {
+    id: "u6",
+    name: "Ralph Edwards",
+    email: "bill.sanders@example.com",
+    role: "Operator",
+    line: "Line 4",
+    status: "In Active",
   },
 ];

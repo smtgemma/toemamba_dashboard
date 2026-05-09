@@ -31,6 +31,24 @@ const userApi = baseApi.injectEndpoints({
       invalidatesTags: [tagTypes.me],
     }),
 
+    createUser: builder.mutation({
+      query: (data) => ({
+        url: "/users/create-user",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.user],
+    }),
+
+    updateUser: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/users/update-user/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.user],
+    }),
+
     deleteUser: builder.mutation({
       query: (id) => ({
         url: `/users/${id}`,
@@ -91,6 +109,8 @@ const userApi = baseApi.injectEndpoints({
 
 export const {
   useUpdateProfileMutation,
+  useCreateUserMutation,
+  useUpdateUserMutation,
   useGetAllUserQuery,
   useGetSingleUserQuery,
   useDeleteUserMutation,
