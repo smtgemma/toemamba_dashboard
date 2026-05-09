@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Sidebar } from "./Sidebar";
 import Image from "next/image";
+import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -72,9 +73,9 @@ export const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
         />
         <div className="flex items-center gap-4">
            {/* Simple Avatar for Supervisor */}
-           <div className="w-10 h-10 rounded-full bg-gray-200 border-2 border-white shadow-sm overflow-hidden">
+           <Link href="/dashboard/profile" className="w-10 h-10 rounded-full bg-gray-200 border-2 border-white shadow-sm overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
               <Image src="/avatar-placeholder.png" alt="User" width={40} height={40} />
-           </div>
+           </Link>
         </div>
       </header>
       <main className="max-w-7xl mx-auto p-8">
