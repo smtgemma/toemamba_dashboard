@@ -77,7 +77,7 @@ export default function ResetPasswordStepSecond({
 
     return (
         <div className="flex flex-col items-center w-full">
-            <div className="mb-6 flex justify-center">
+            <div className="mb-4 flex justify-center">
                 <Link href={'/'}>
                     <Image
                         src="/logo.png"
@@ -137,7 +137,7 @@ export default function ResetPasswordStepSecond({
                 <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full !mt-8 rounded-xl btn-gradient py-6 text-lg text-white cursor-pointer flex items-center justify-center font-semibold"
+                    className="w-full !mt-4 rounded-xl bg-black py-6 text-[16px] text-white cursor-pointer flex items-center justify-center font-medium"
                 >
                     {isLoading ? "Verifying..." : "Verify OTP"}
                 </Button>

@@ -119,9 +119,9 @@ export default function ResetPassPage() {
 
     return (
         <div className="flex h-screen bg-[#f7f8fa] items-center justify-center p-4">
-            <div className='max-w-4xl w-full rounded-3xl border border-violet-400 bg-white shadow-sm dark:bg-zinc-950 dark:border-violet-500 overflow-hidden'>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
-                    <div className="w-full p-4 lg:p-8 flex flex-col items-center justify-center">
+            <div className='max-w-xl w-full rounded-3xl border border-violet-400 bg-white shadow-sm dark:bg-zinc-950 dark:border-violet-500 overflow-hidden'>
+                <div className="">
+                    <div className="w-full p-4 lg:p-6 flex flex-col items-center justify-center">
                         {currentStep === 1 && (
                             <ResetPasswordStepFirst
                                 email={email}
@@ -150,15 +150,7 @@ export default function ResetPassPage() {
                         )}
                     </div>
 
-                    <div className="hidden lg:block relative h-[520px] w-full">
-                        <Image
-                            src="/auth1.png"
-                            alt="Authentication"
-                            fill
-                            className="object-cover"
-                            priority
-                        />
-                    </div>
+
                 </div>
             </div>
         </div>

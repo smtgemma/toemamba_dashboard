@@ -74,14 +74,14 @@ export default function SignIn() {
     return (
         <div className="flex h-screen  bg-[#f7f8fa] items-center justify-center p-4">
 
-            <div className='max-w-5xl w-full rounded-3xl border border-violet-400 bg-white shadow-sm dark:bg-zinc-950 dark:border-violet-500 overflow-hidden'>
+            <div className='max-w-5xl w-full rounded-3xl border border-gray-400 bg-white shadow-sm dark:bg-zinc-950 dark:border-violet-500 overflow-hidden'>
 
 
-                <div className="grid grid-cols-1 lg:grid-cols-2  gap-3.5 ">
+                <div className="grid grid-cols-1 lg:grid-cols-2  items-center justify-center gap-3.5 ">
 
-                    <div className="w-full p-4 lg:p-8 flex flex-col items-center">
+                    <div className="w-full p-4 lg:p-6 flex flex-col items-center">
                         {/* Logo */}
-                        <div className="mb-6 flex justify-center">
+                        <div className="mb-3 flex justify-center">
                             <Link href={'/'}>
                                 <Image
                                     src="/logo.png"
@@ -153,36 +153,25 @@ export default function SignIn() {
 
                             <Button
                                 type="submit"
-                                className="w-full !mt-6 rounded-xl btn-gradient py-6 text-lg font-medium text-white cursor-pointer"
+                                className="w-full !mt-6 rounded-xl bg-black py-6 text-lg font-medium text-white cursor-pointer"
                                 disabled={isLoading}
                             >
                                 {isLoading ? "Please wait..." : "Login"}
                             </Button>
                         </form>
 
-                        <div className="mt-8 flex w-full max-w-[80%] items-center justify-center space-x-2">
-                            <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent dark:via-zinc-700"></div>
-                            <span className="text-xs font-semibold text-gray-300">-</span>
-                            <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent dark:via-zinc-700"></div>
-                        </div>
 
-                        <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-                            Don't have an account?{" "}
-                            <Link
-                                href="/signup"
-                                className="font-medium text-blue-600 hover:text-blue-500 hover:underline dark:text-blue-500"
-                            >
-                                Register
-                            </Link>
-                        </p>
+
+
                     </div>
 
                     <div className="hidden lg:block relative h-full w-full">
                         <Image
-                            src="/auth1.png"
+                            src="/lgn.jpg"
                             alt="Authentication"
-                            fill
-                            className="object-cover"
+                            width={700}
+                            height={300}
+                            className="object-contain h-full w-full"
                             priority
                         />
                     </div>

@@ -39,7 +39,7 @@ export default function ResetPasswordStepThird({
 
     return (
         <div className="flex flex-col items-center w-full">
-            <div className="mb-6 flex justify-center">
+            <div className="mb-4 flex justify-center">
                 <Link href={'/'}>
                     <Image
                         src="/logo.png"
@@ -53,7 +53,7 @@ export default function ResetPasswordStepThird({
             </div>
 
             {/* Header */}
-            <div className="mb-5 w-full text-center">
+            <div className="mb-3 w-full text-center">
                 <h1 className="text-3xl sm:text-[34px] font-semibold text-gray-900 dark:text-gray-100 mb-2">
                     Set New Password
                 </h1>
@@ -63,7 +63,7 @@ export default function ResetPasswordStepThird({
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="w-full space-y-4">
+            <form onSubmit={handleSubmit} className="w-full space-y-3">
                 <div className="space-y-2">
                     <label
                         htmlFor="newPassword"
@@ -105,7 +105,7 @@ export default function ResetPasswordStepThird({
                 <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full !mt-8 rounded-xl btn-gradient py-6 text-lg text-white cursor-pointer flex items-center justify-center font-semibold"
+                    className="w-full !mt-6 rounded-xl bg-black py-6 text-[16px] text-white cursor-pointer flex items-center justify-center font-medium"
                 >
                     {isLoading ? "Setting Password..." : "Set Password"}
                 </Button>

@@ -24,12 +24,12 @@ export default function ResetPasswordStepFirst({
 
     return (
         <div className="flex flex-col items-center w-full">
-            <div className="mb-6 flex justify-center">
+            <div className="mb-3 flex justify-center">
                 <Link href={'/'}>
                     <Image
                         src="/logo.png"
                         alt="PeptideHelp"
-                        width={240}
+                        width={200}
                         height={70}
                         className="object-contain"
                         priority
@@ -39,7 +39,7 @@ export default function ResetPasswordStepFirst({
 
             {/* Header */}
             <div className="mb-5 w-full text-center">
-                <h1 className="text-3xl sm:text-[34px] font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                <h1 className="text-2xl sm:text-[24px] font-semibold text-gray-900 dark:text-gray-100 mb-2">
                     Forget Password
                 </h1>
                 <p className="text-sm text-gray-400 dark:text-gray-400">
@@ -71,7 +71,7 @@ export default function ResetPasswordStepFirst({
                 <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full !mt-6 rounded-xl btn-gradient py-6 text-lg text-white cursor-pointer flex items-center justify-center font-semibold"
+                    className="w-full !mt-4 rounded-xl bg-black py-6 text-[16px] text-white cursor-pointer flex items-center justify-center font-medium"
                 >
                     {isLoading ? "Sending..." : "Send Reset Code"}
                 </Button>
