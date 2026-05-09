@@ -12,10 +12,10 @@ const sora = Sora({
 });
 
 export const metadata: Metadata = {
-  title: "Shyfty Dashboard",
+  title: "Shyfty Mangement Website",
   description:
     "Accurate shift handoffs for safer, smoother operations.",
-  keywords: ["Shyfty", "Shyfty Dashboard"],
+  keywords: ["Shyfty", "Shyfty Website"],
 };
 
 export default function RootLayout({
