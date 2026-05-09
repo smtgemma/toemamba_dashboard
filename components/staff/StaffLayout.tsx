@@ -37,7 +37,7 @@ export const StaffLayout = ({ children, category = "Maintenance", showBack, back
                   <span className="text-xs font-bold text-[#027A48]">{category}</span>
                 </div>
               </div>
-              <Link href="/dashboard/profile">
+              <Link href={category === "Operator" ? "/operator/profile" : "/staff/profile"}>
                 <div className="w-10 h-10 rounded-full bg-gray-200 border-2 border-white shadow-sm overflow-hidden">
                   <Image src="/avatar-placeholder.png" alt="User" width={40} height={40} />
                 </div>
