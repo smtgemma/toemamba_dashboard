@@ -30,7 +30,7 @@ export const StaffLayout = ({ children, category = "Maintenance", showBack, back
             <>
               <div className="flex justify-between items-center gap-4">
                 <Link href="/staff">
-                  <Image src="/logo.png" alt="Shyfty" width={80} height={24} className="h-auto w-[80px]" />
+                  <Image src={'/new-logo.png'} alt="new-logo Logo" width={200} height={24} className="object-contain w-[160px]" />
                 </Link>
                 <div className="flex items-center gap-2 px-3 py-1 bg-[#ECFDF3] rounded-full border border-[#ABEFC6]">
                   <div className="w-2 h-2 rounded-full bg-[#12B76A]" />

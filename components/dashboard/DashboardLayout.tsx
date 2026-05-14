@@ -46,7 +46,7 @@ export const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
         <main className="flex-1 overflow-y-auto">
           {/* Mobile Header for Admin */}
           <header className="lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-            <Image src="/logo.png" alt="Shyfty" width={80} height={24} className="h-6 w-auto" />
+            <Image src={'/new-logo.png'} alt="new-logo Logo" width={200} height={24} className="object-contain w-[150px]" />
             <button onClick={() => setIsSidebarOpen(true)}>
               <Menu className="w-6 h-6 text-gray-500" />
             </button>
@@ -64,13 +64,7 @@ export const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
   return (
     <div className="min-h-screen  bg-[#F9FAFB]">
       <header className="bg-white border-b h-20 border-gray-100 px-8 lg:px-16 py-4 flex items-center justify-between">
-        <Image
-          src="/logo.png"
-          alt="Shyfty"
-          width={250}
-          height={32}
-          className="h-[100px] w-auto"
-        />
+        <Image src={'/new-logo.png'} alt="new-logo Logo" width={200} height={24} className="object-contain w-[150px]" />
         <div className="flex items-center gap-4">
           {/* Simple Avatar for Supervisor */}
           <Link href="/dashboard/profile" className="w-10 h-10 rounded-full bg-gray-200 border-2 border-white shadow-sm overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">

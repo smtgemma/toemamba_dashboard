@@ -5,11 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
+  BarChart3,
   Users,
   Settings,
   UserCircle,
   LogOut,
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
@@ -18,6 +20,11 @@ const navItems = [
     label: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    label: "Analytics",
+    href: "/dashboard/analytics",
+    icon: BarChart3,
   },
   {
     label: "User Management",
@@ -41,15 +48,16 @@ export const Sidebar = () => {
 
   return (
     <div className="flex h-screen w-64 flex-col bg-white border-r border-gray-100 p-6">
-      <div className="mb-10 px-2">
+      <div className="mb-10 px-4">
         <Link href="/dashboard" className="flex items-center gap-2">
           <Image
-            src="/logo.png"
-            alt="Shyfty"
+            src="/new-logo.png"
+            alt="new-logo Logo"
             width={250}
-            height={32}
-            className="h-[100px] w-auto"
+            height={150}
+            className="object-contain w-[150px]"
           />
+
         </Link>
       </div>
 

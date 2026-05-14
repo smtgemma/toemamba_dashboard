@@ -5,6 +5,7 @@ import { StaffLayout } from "@/components/staff/StaffLayout";
 import { 
   FileText, 
   Upload, 
+  Mic,
   Calendar, 
   Settings, 
   ChevronRight, 
@@ -24,9 +25,28 @@ type Step = "input" | "processing" | "summary";
 
 export default function OperatorHandoffPage() {
   const [step, setStep] = useState<Step>("input");
-  const [inputMode, setInputMode] = useState<"paste" | "upload">("paste");
+  const [inputMode, setInputMode] = useState<"paste" | "upload" | "voice">("paste");
   const [selectedShift, setSelectedShift] = useState("1st Shift");
   const [activeBottomTab, setActiveBottomTab] = useState<"input" | "review">("input");
+  const [isRecording, setIsRecording] = useState(false);
+  const [transcribedText, setTranscribedText] = useState("");
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  
+  const handleToggleRecord = () => {
+    if (!isRecording) {
+      setIsRecording(true);
+      toast.info("Recording voice note...");
+    } else {
+      setIsRecording(false);
+      setIsTranscribing(true);
+      // Simulate transcription
+      setTimeout(() => {
+        setTranscribedText("Conveyor belt Line 2 is making a loud grinding noise. Maintenance was notified at 08:30 but no one has arrived yet. Production rate dropped by 15%. Need immediate inspection of the motor assembly.");
+        setIsTranscribing(false);
+        toast.success("Voice transcribed successfully!");
+      }, 2000);
+    }
+  };
 
   // Processing state
   const [processingSteps, setProcessingSteps] = useState([
@@ -57,26 +77,36 @@ export default function OperatorHandoffPage() {
       </div>
 
       {/* Mode Switcher */}
-      <div className="grid grid-cols-2 gap-3 bg-gray-50/50 p-1 rounded-2xl border border-gray-100">
+      <div className="grid grid-cols-3 gap-2 bg-gray-50/50 p-1 rounded-2xl border border-gray-100">
         <button
           onClick={() => setInputMode("paste")}
           className={cn(
-            "flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all",
+            "flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-bold transition-all",
             inputMode === "paste" ? "bg-[#101828] text-white shadow-md" : "text-gray-500 hover:bg-gray-100"
           )}
         >
           <FileText className="w-4 h-4" />
-          Paste Text
+          Text
+        </button>
+        <button
+          onClick={() => setInputMode("voice")}
+          className={cn(
+            "flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-bold transition-all",
+            inputMode === "voice" ? "bg-[#101828] text-white shadow-md" : "text-gray-500 hover:bg-gray-100"
+          )}
+        >
+          <Mic className="w-4 h-4" />
+          Voice
         </button>
         <button
           onClick={() => setInputMode("upload")}
           className={cn(
-            "flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all",
+            "flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-bold transition-all",
             inputMode === "upload" ? "bg-[#101828] text-white shadow-md" : "text-gray-500 hover:bg-gray-100"
           )}
         >
           <Upload className="w-4 h-4" />
-          Upload File
+          File
         </button>
       </div>
 
@@ -86,6 +116,40 @@ export default function OperatorHandoffPage() {
           placeholder="Paste shift notes here..."
           className="w-full h-40 bg-[#F9FAFB] border border-gray-200 rounded-2xl p-5 text-sm focus:outline-none focus:ring-2 focus:ring-[#101828]/5 transition-all resize-none placeholder:text-gray-400"
         />
+      ) : inputMode === "voice" ? (
+        <div className="w-full min-h-[160px] bg-[#F9FAFB] border border-gray-100 rounded-3xl p-6 flex flex-col items-center justify-center space-y-6">
+          {isTranscribing ? (
+            <div className="flex flex-col items-center space-y-3">
+              <RefreshCcw className="w-8 h-8 text-[#2E90FA] animate-spin" />
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Transcribing...</p>
+            </div>
+          ) : transcribedText ? (
+            <div className="w-full space-y-4">
+               <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase text-gray-400">Transcribed Text</span>
+                  <button onClick={() => setTranscribedText("")} className="text-[10px] font-bold text-red-500">Clear</button>
+               </div>
+               <p className="text-sm font-medium text-gray-700 leading-relaxed italic">"{transcribedText}"</p>
+            </div>
+          ) : (
+            <>
+              <button 
+                onClick={handleToggleRecord}
+                className={cn(
+                  "w-20 h-20 rounded-full flex items-center justify-center transition-all duration-500 shadow-xl",
+                  isRecording 
+                    ? "bg-red-500 text-white animate-pulse scale-110 shadow-red-200" 
+                    : "bg-[#101828] text-white hover:scale-105 shadow-gray-200"
+                )}
+              >
+                <Mic className={cn("w-8 h-8", isRecording && "animate-bounce")} />
+              </button>
+              <p className="text-sm font-bold text-gray-900">
+                {isRecording ? "Listening... Tap to stop" : "Tap to record voice note"}
+              </p>
+            </>
+          )}
+        </div>
       ) : (
         <div className="w-full h-40 bg-[#F9FAFB] border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center space-y-3 group cursor-pointer hover:border-[#101828]/20 transition-all">
           <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm text-gray-400 group-hover:text-[#101828]">
