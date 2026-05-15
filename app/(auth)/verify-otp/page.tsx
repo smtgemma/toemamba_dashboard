@@ -124,11 +124,11 @@ export default function VerifyOtpPage() {
                         <div className="mb-6 flex justify-center">
                             <Link href={'/'}>
                                 <Image
-                                    src="/logo.png"
+                                    src="/new-logo.png"
                                     alt="PeptideHelp"
                                     width={240}
                                     height={70}
-                                    className="object-contain"
+                                    className="object-contain w-[200px]"
                                     priority
                                 />
                             </Link>

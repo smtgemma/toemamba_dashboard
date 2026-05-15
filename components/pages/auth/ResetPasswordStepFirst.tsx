@@ -27,11 +27,11 @@ export default function ResetPasswordStepFirst({
             <div className="mb-3 flex justify-center">
                 <Link href={'/'}>
                     <Image
-                        src="/logo.png"
+                        src="/new-logo.png"
                         alt="PeptideHelp"
                         width={200}
                         height={70}
-                        className="object-contain"
+                        className="object-contain w-[200px]"
                         priority
                     />
                 </Link>
