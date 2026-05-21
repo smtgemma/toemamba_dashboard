@@ -18,7 +18,7 @@ export default function DashboardPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Simplified role handling for now
-  const role = "SUPERVISOR";
+  const role = "SUPER_ADMIN";
   const displayRole = "Shift Supervisor";
 
   const filteredIssues = useMemo(() => {
