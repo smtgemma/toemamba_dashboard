@@ -1,0 +1,133 @@
+Hi Kaif. I am interested in moving forward, but I have some adjustments I want to confirm that you all
+can execute.
+
+I want to tighten the product around operational continuity and shift visibility rather than making it
+feel like another CMMS or maintenance ticketing platform.
+
+I want to focus on is preventing operational information from getting lost between shifts. The app
+should feel like the operational memory layer for a manufacturing plant.
+
+Current functionality is solid:
+- Operators can report issues via text, voice, or picture uploads
+- Operators can see issue history on their line
+- Maintenance can manage issues through approved, in progress, and resolved
+- Managers can see prioritized issues and analytics
+
+But I want to refine the UX, terminology, and dashboards to better align with this operational
+continuity concept.
+
+
+
+
+
+Main changes I want to make:
+
+1. Replace generic "tasks" terminology
+Instead of calling things "maintenance tasks," I want language like:
+- Operational Issues
+- Carryover Items
+- Shift Issues
+- Watch Items
+- Escalations
+
+I want the platform to feel operational, not administrative.
+
+2. Add a "Monitoring" state
+Current issue flow:
+Approved > In Progress -> Resolved
+
+New flow:
+Open -> Monitoring -> In Progress -> Resolved
+
+A lot of manufacturing issues are temporary fixes or watch conditions, so "Monitoring" is important
+operationally.
+
+3. Add a hero feature called:
+NEXT SHIFT NEEDS TO KNOW
+
+This should become the core experience across the platform.
+
+Al should generate a prioritized summary of:
+- unresolved issues
+- temporary fixes
+- repeat problems
+- watch conditions
+- operational risks
+- pending maintenance review
+
+This should appear for operators, maintenance, and managers in different ways.
+
+4. Simplify the operator dashboard
+Operator dashboard should mainly focus on:
+- Report Issue
+- Next Shift Needs To Know
+- Recent Issues On My Line
+
+Keep it extremely lightweight and mobile-first.
+
+5. Refocus maintenance dashboard around operational risk
+Not task management.
+
+Maintenance should primarily see:
+- Carryover & Open Issues
+- Escalating Issues
+- Moniloring Issues
+- Recurring Problems
+- Shift Timeline / Issue History
+
+I want maintenance to quickly understand:
+- what still matters
+- what keeps happening
+- what is escalating
+
+6. Add recurring issue detection
+This is a major differentiator.
+
+Examples:
+- "Conveyor 2 jam reported 8 times this week"
+- "Motor vibration recurring across multiple shifts"
+
+I want Al surfacing recurring operational patterns automatically.
+
+
+7. Add carryover aging
+Show how long unresolved issues persist across shifts.
+
+Cxamples:
+- Open across 3 shifts
+- Escalating after repeated mentions
+- Awaiting follow-up
+
+This visually reinforces operational continuity.
+
+8. Add issue timeline view
+I want a visual timeline showing:
+- initial report
+- temporary fixes
+- shift handoffs
+- repeat occurrences
+- escalation
+- resolution
+
+This should visually tell the story of an issue across shifts.
+
+
+9. Keep analytics but make them secondary
+Keep:
+- MTTR
+- Repeat issue rate
+- Handoff completion %
+- Downtime insights
+- Open issues by shift
+- Response time
+
+But analytics should support the operational continuity story, not dominate the UI.
+
+The main questions every dashboard should answer are:
+- What still matters?
+- What keeps happening?
+- What does the next shift need to know?
+- What's escalating?
+
+
+I am ready to move forward if you all can make that happen for me

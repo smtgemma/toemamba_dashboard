@@ -8,7 +8,7 @@ export default function ProjectPage() {
       <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-md w-full text-center">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">Project Workspace</h1>
         <p className="text-gray-500 mb-6">
-          This area is designated for Maintenance and Operator roles to manage their specific tasks and workflows.
+          This area is designated for Maintenance and Operator roles to manage their specific issues, continuity handoffs, and workflows.
         </p>
         <div className="grid grid-cols-2 gap-4">
           <div className="p-4 bg-[#F9F5FF] rounded-xl border border-[#D6BBFB]">

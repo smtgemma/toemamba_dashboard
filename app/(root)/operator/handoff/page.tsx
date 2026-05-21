@@ -20,10 +20,14 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useCreateIssueMutation } from "@/lib/redux/features/issues/issuesApi";
 
 type Step = "input" | "processing" | "summary";
 
 export default function OperatorHandoffPage() {
+  const router = useRouter();
+  const [createIssue, { isLoading: isSubmitting }] = useCreateIssueMutation();
   const [step, setStep] = useState<Step>("input");
   const [inputMode, setInputMode] = useState<"paste" | "upload" | "voice">("paste");
   const [selectedShift, setSelectedShift] = useState("1st Shift");
@@ -65,6 +69,24 @@ export default function OperatorHandoffPage() {
     setTimeout(() => {
       setStep("summary");
     }, 3000);
+  };
+
+  const handleSubmitHandoff = async () => {
+    try {
+      await createIssue({
+        content: transcribedText || "Conveyor belt Line 2 is making a grinding noise. Checked transition guide.",
+        priority: "P1",
+        category: "Maintenance",
+        line: "Line 2",
+        status: "Open",
+        date: "2026-05-21"
+      }).unwrap();
+      
+      toast.success("Shift handoff submitted successfully!");
+      router.push("/operator");
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to submit handoff");
+    }
   };
 
   const renderInput = () => (
@@ -321,9 +343,11 @@ export default function OperatorHandoffPage() {
 
       <div className="space-y-3 pt-4">
         <button 
-           onClick={() => toast.success("Handoff submitted!")}
-           className="w-full bg-[#101828] text-white py-4 rounded-2xl font-bold shadow-lg active:scale-[0.98] transition-all"
+           onClick={handleSubmitHandoff}
+           disabled={isSubmitting}
+           className="w-full bg-[#101828] text-white py-4 rounded-2xl font-bold shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2"
         >
+          {isSubmitting && <Loader2 className="w-5 h-5 animate-spin" />}
           Submit for Supervisor Review
         </button>
         <button 
