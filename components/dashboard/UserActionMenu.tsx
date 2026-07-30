@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import { MoreVertical, Eye, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -12,23 +13,55 @@ interface UserActionMenuProps {
 
 export const UserActionMenu = ({ onView, onEdit, onDelete }: UserActionMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [coords, setCoords] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const handleToggle = () => {
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const menuHeight = 132; // Exact height of the 3-button menu
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const shouldOpenUp = spaceBelow < menuHeight + 16;
+
+      // Position absolute coordinate relative to document body
+      setCoords({
+        top: shouldOpenUp
+          ? rect.top + window.scrollY - menuHeight - 6
+          : rect.bottom + window.scrollY + 6,
+        left: rect.right + window.scrollX - 160, // Align right edge of menu (160px width)
+      });
+    }
+    setIsOpen(!isOpen);
+  };
 
   return (
-    <div className="relative">
+    <div className="relative inline-block">
       <button 
-        onClick={() => setIsOpen(!isOpen)}
+        ref={buttonRef}
+        onClick={handleToggle}
         className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
       >
         <MoreVertical className="w-5 h-5 text-gray-500" />
       </button>
 
-      {isOpen && (
+      {isOpen && typeof document !== "undefined" && createPortal(
         <>
+          {/* Overlay to catch clicks and close menu */}
           <div 
-            className="fixed inset-0 z-40" 
+            className="fixed inset-0 z-[9998]" 
             onClick={() => setIsOpen(false)} 
           />
-          <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden py-1">
+          
+          {/* Menu container positioned absolute relative to body */}
+          <div 
+            style={{ 
+              position: "absolute",
+              top: `${coords.top}px`,
+              left: `${coords.left}px`,
+              width: "160px"
+            }}
+            className="bg-white border border-gray-100 rounded-xl shadow-xl z-[9999] overflow-hidden py-1 animate-in fade-in duration-100"
+          >
             <button
               onClick={() => {
                 onView();
@@ -60,7 +93,8 @@ export const UserActionMenu = ({ onView, onEdit, onDelete }: UserActionMenuProps
               Delete
             </button>
           </div>
-        </>
+        </>,
+        document.body
       )}
     </div>
   );
