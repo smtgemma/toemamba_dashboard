@@ -206,6 +206,7 @@ export default function UserManagementPage() {
                             onView={() => handleViewUser(user)}
                             onEdit={() => handleEditUser(user)}
                             onDelete={() => handleDeleteClick(user)}
+                            isDeleteDisabled={user.role === "SUPER_ADMIN" || user.role === "ADMIN"}
                           />
                         </td>
                       </tr>

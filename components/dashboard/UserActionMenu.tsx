@@ -9,9 +9,10 @@ interface UserActionMenuProps {
   onView: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  isDeleteDisabled?: boolean;
 }
 
-export const UserActionMenu = ({ onView, onEdit, onDelete }: UserActionMenuProps) => {
+export const UserActionMenu = ({ onView, onEdit, onDelete, isDeleteDisabled }: UserActionMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -84,12 +85,20 @@ export const UserActionMenu = ({ onView, onEdit, onDelete }: UserActionMenuProps
             </button>
             <button
               onClick={() => {
-                onDelete();
-                setIsOpen(false);
+                if (!isDeleteDisabled) {
+                  onDelete();
+                  setIsOpen(false);
+                }
               }}
-              className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              disabled={isDeleteDisabled}
+              className={cn(
+                "w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors text-left",
+                isDeleteDisabled 
+                  ? "text-gray-300 cursor-not-allowed bg-gray-50/50" 
+                  : "text-red-600 hover:bg-red-50"
+              )}
             >
-              <Trash2 className="w-4 h-4 text-red-400" />
+              <Trash2 className={cn("w-4 h-4", isDeleteDisabled ? "text-gray-200" : "text-red-400")} />
               Delete
             </button>
           </div>
