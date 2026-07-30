@@ -20,7 +20,7 @@ const issuesApi = baseApi.injectEndpoints({
       providesTags: [tagTypes.issue],
     }),
 
-    createIssue: builder.mutation({
+    submitIssue: builder.mutation({
       query: (data) => ({
         url: "/issues",
         method: "POST",
@@ -54,14 +54,53 @@ const issuesApi = baseApi.injectEndpoints({
       }),
       providesTags: [tagTypes.issue],
     }),
+
+    analyzeIssue: builder.mutation({
+      query: (data) => ({
+        url: "/issues/analyze",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.issue],
+    }),
+
+    assignIssue: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/issues/${id}/assign`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.issue],
+    }),
+
+    updateIssueStatus: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/issues/${id}/status-update`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.issue],
+    }),
+
+    getAnalytics: builder.query({
+      query: () => ({
+        url: "/issues/analytics",
+        method: "GET",
+      }),
+      providesTags: [tagTypes.issue],
+    }),
   }),
 });
 
 export const {
   useGetIssuesQuery,
   useGetIssueByIdQuery,
-  useCreateIssueMutation,
+  useSubmitIssueMutation,
   useUpdateIssueMutation,
   useGetAiSummaryQuery,
   useGetRecurringIssuesQuery,
+  useAnalyzeIssueMutation,
+  useAssignIssueMutation,
+  useUpdateIssueStatusMutation,
+  useGetAnalyticsQuery,
 } = issuesApi;

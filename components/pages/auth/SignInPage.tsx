@@ -41,29 +41,52 @@ export default function SignIn() {
     });
 
     const onSubmit = async (data: FormData) => {
-
-
         setIsLoading(true);
         const payload = {
             email: data.email,
             password: data.password,
-        }
+        };
 
         try {
             const res = await login(payload).unwrap();
-
             toast.success("Sign in successful.");
 
-            router.replace(redirectUrl);
+            // Get user role from response or token payload
+            const userRole = res?.data?.user?.role || res?.data?.role;
+            const token = res?.data?.accessToken;
+            
+            let role = userRole;
+            if (!role && token) {
+                try {
+                    const base64Url = token.split(".")[1];
+                    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                    const jsonPayload = JSON.parse(window.atob(base64));
+                    role = jsonPayload.role || jsonPayload.user?.role;
+                } catch (e) {
+                    console.error("Failed to decode token for role mapping", e);
+                }
+            }
 
+            let destination = redirectUrl;
+            if (redirectUrl === "/") {
+                const normalizedRole = role?.toUpperCase();
+                if (normalizedRole === "ADMIN" || normalizedRole === "SUPER_ADMIN" || normalizedRole === "SUPERVISOR") {
+                    destination = "/dashboard";
+                } else if (normalizedRole === "MAINTENANCE" || normalizedRole === "STAFF") {
+                    destination = "/staff";
+                } else if (normalizedRole === "OPERATOR") {
+                    destination = "/operator";
+                } else {
+                    destination = "/dashboard";
+                }
+            }
 
-
+            router.replace(destination);
         } catch (error: any) {
-            const errMsg = error?.data?.message || error?.data?.errorMessages[0]?.message
+            const errMsg = error?.data?.message || error?.data?.errorMessages[0]?.message;
             toast.error(errMsg || "Something went wrong. Please try again.");
             if (error?.data?.statusCode === 403) {
                 router.replace("/verify-otp");
-
             }
         } finally {
             setIsLoading(false);

@@ -16,7 +16,7 @@ interface StaffLayoutProps {
 export const StaffLayout = ({ children, category = "Maintenance", showBack, backHref }: StaffLayoutProps) => {
   return (
     <div className="min-h-screen bg-white md:bg-[#F9FAFB] flex justify-center">
-      <div className="w-full max-w-md md:max-w-xl bg-white min-h-screen shadow-sm relative overflow-x-hidden">
+      <div className="w-full max-w-4xl bg-white min-h-screen shadow-sm relative overflow-x-hidden">
         {/* Header */}
         <header className="px-6 py-4 flex h-[80px] items-center justify-between border-b border-gray-200 sticky top-0 bg-white z-50">
           {showBack ? (

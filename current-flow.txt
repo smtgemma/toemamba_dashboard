@@ -1,0 +1,24 @@
+
+
+## Phase 1 — Current MVP (In Progress)
+
+
+
+## User & Role Management
+
+Admin, Supervisor, Operator, Staff roles
+User invitation via email
+User management
+Shift management
+Production line management
+
+
+
+## Issue Workflow
+
+Operator manually creates issues
+AI analyzes issue severity
+Supervisor/Admin reviews issues
+Supervisor assigns issues to staff
+Staff updates issue status (Open → In Progress → Resolved)
+Dashboard & Analytics

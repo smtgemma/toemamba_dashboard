@@ -14,25 +14,38 @@ export const ProfilePage = () => {
   const { data: userData, isLoading: isFetching } = useGetMeQuery({});
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  console.log(userData);
 
   const { register, handleSubmit, reset } = useForm({
     values: {
-      fullName: userData?.data?.fullName || "",
+      fullName: userData?.data?.fullName,
       email: userData?.data?.email || "",
       role: userData?.data?.role || "Employee",
-    }
+    },
   });
 
   const onSubmit = async (data: any) => {
     try {
       const formData = new FormData();
-      formData.append("fullName", data.fullName);
-      if (selectedFile) {
-        formData.append("image", selectedFile);
+
+      // Check if name actually changed compared to current profile data
+      const originalName = userData?.data?.fullName;
+      const updatePayload: any = {};
+
+      if (data.fullName.trim() && data.fullName.trim() !== originalName) {
+        updatePayload.fullName = data.fullName.trim();
       }
-      
+
+      if (selectedFile) {
+        formData.append("file", selectedFile);
+      }
+
+      // Wrap changes inside the data field as a JSON string
+      formData.append("data", JSON.stringify(updatePayload));
+
       await updateProfile(formData).unwrap();
       toast.success("Profile updated successfully");
+      setSelectedFile(null);
     } catch (err: any) {
       toast.error(err?.data?.message || "Failed to update profile");
     }
@@ -49,29 +62,36 @@ export const ProfilePage = () => {
   return (
     <div className="max-w-4xl mx-auto py-10 px-4">
       <div className="flex items-center justify-between mb-10">
-        <Link href="/dashboard" className="flex items-center gap-2 text-gray-500 hover:text-gray-900 font-bold transition-all">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-2 text-gray-500 hover:text-gray-900 font-bold transition-all"
+        >
           <ArrowLeft className="w-5 h-5" />
           <span>Back</span>
         </Link>
         <div className="text-center flex-1">
           <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage your personal information and security settings.</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Manage your personal information and security settings.
+          </p>
         </div>
         <div className="w-20" /> {/* Spacer for centering */}
       </div>
 
       <div className="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm">
         <h3 className="text-lg font-bold text-gray-900 mb-2">Basic info</h3>
-        
+
         <form onSubmit={handleSubmit(onSubmit)}>
-          <ProfileImageUploader 
-            initialImage={userData?.data?.profilePic} 
-            onImageChange={setSelectedFile} 
+          <ProfileImageUploader
+            initialImage={userData?.data?.profilePic}
+            onImageChange={setSelectedFile}
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700">Display Name</label>
+              <label className="text-sm font-bold text-gray-700">
+                Display Name
+              </label>
               <input
                 type="text"
                 {...register("fullName")}
@@ -90,7 +110,9 @@ export const ProfilePage = () => {
               />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-bold text-gray-700">Email Address</label>
+              <label className="text-sm font-bold text-gray-700">
+                Email Address
+              </label>
               <input
                 type="email"
                 {...register("email")}

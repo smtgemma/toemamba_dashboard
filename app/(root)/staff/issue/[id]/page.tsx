@@ -1,48 +1,56 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { StaffLayout } from "@/components/staff/StaffLayout";
 import { 
   AlertTriangle, 
   Wrench, 
   Clock, 
-  Calendar, 
   User, 
   TrendingUp, 
   CheckCircle,
   Play,
   RotateCcw,
-  Sparkles
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { DUMMY_ISSUES } from "@/constants/dummy";
-import { useUpdateIssueMutation } from "@/lib/redux/features/issues/issuesApi";
+import { useGetIssueByIdQuery, useUpdateIssueStatusMutation } from "@/lib/redux/features/issues/issuesApi";
 
 export default function StaffIssueDetailsPage({ params }: { params: { id: string } }) {
-  // Find issue dynamically or fall back to first dummy issue
-  const issue = useMemo(() => {
-    return DUMMY_ISSUES.find(i => i.id === params.id) || DUMMY_ISSUES[0];
-  }, [params.id]);
+  const { data: issueData, isLoading: isFetching } = useGetIssueByIdQuery(params.id);
+  const [updateIssueStatus, { isLoading: isUpdating }] = useUpdateIssueStatusMutation();
 
-  const [status, setStatus] = useState(issue.status);
+  const issue = issueData?.data || issueData || null;
+
+  const [status, setStatus] = useState("Open");
   const [note, setNote] = useState("");
-  
-  const [updateIssue, { isLoading: isUpdating }] = useUpdateIssueMutation();
+
+  // Sync state once data loads
+  useEffect(() => {
+    if (issue) {
+      setStatus(issue.status);
+    }
+  }, [issue]);
 
   const handleAction = async () => {
+    if (!note.trim()) {
+      toast.error("Please log a brief operational note before updating the state.");
+      return;
+    }
+
     try {
-      // API call ready for backend developer
-      await updateIssue({
-        id: issue.id,
+      await updateIssueStatus({
+        id: params.id,
         status,
-        note
+        note,
+        isTemporaryFix: status === "Monitoring"
       }).unwrap();
       
-      toast.success(`Action saved. Status updated to ${status}`);
+      toast.success(`Handoff log saved! State set to ${status}.`);
+      setNote("");
     } catch (err: any) {
-      // Since backend is not started, fallback to showing success in UI (Demo mode)
-      toast.success(`Demo Action saved: Status updated to ${status}`);
+      toast.error(err?.data?.message || "Failed to update state.");
     }
   };
 
@@ -80,6 +88,26 @@ export default function StaffIssueDetailsPage({ params }: { params: { id: string
     }
   };
 
+  if (isFetching) {
+    return (
+      <StaffLayout showBack backHref="/staff">
+        <div className="flex items-center justify-center h-[60vh]">
+          <Loader2 className="w-8 h-8 text-[#101828] animate-spin" />
+        </div>
+      </StaffLayout>
+    );
+  }
+
+  if (!issue) {
+    return (
+      <StaffLayout showBack backHref="/staff">
+        <div className="text-center py-20 text-xs text-gray-400 font-medium">
+          Issue details not found.
+        </div>
+      </StaffLayout>
+    );
+  }
+
   return (
     <StaffLayout showBack backHref="/staff">
       <div className="p-6 space-y-6 pb-24">
@@ -100,10 +128,10 @@ export default function StaffIssueDetailsPage({ params }: { params: { id: string
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-y-5 gap-x-4 border-t border-gray-50 pt-5 text-sm">
+          <div className="grid grid-cols-2 gap-y-5 gap-x-4 border-t border-gray-50 pt-5 text-xs">
             <div>
               <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Aging Status</p>
-              <p className="font-bold text-gray-700">{issue.carryoverAging}</p>
+              <p className="font-bold text-gray-700">{issue.carryoverAging || "Open across 1 shift"}</p>
             </div>
             <div>
               <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Area / Line</p>
@@ -121,7 +149,7 @@ export default function StaffIssueDetailsPage({ params }: { params: { id: string
               </div>
             </div>
             <div>
-              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Assigned Owner</p>
+              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Assigned Group</p>
               <p className="font-bold text-gray-700">{issue.category}</p>
             </div>
           </div>
@@ -147,34 +175,38 @@ export default function StaffIssueDetailsPage({ params }: { params: { id: string
           
           <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
             <div className="relative border-l border-gray-100 ml-4 pl-6 space-y-6">
-              {issue.timeline && issue.timeline.map((event, index) => (
-                <div key={index} className="relative">
-                  {/* Timeline Badge */}
-                  <span className={cn(
-                    "absolute -left-[37px] top-0.5 flex h-6 w-6 items-center justify-center rounded-full border-2 ring-4 ring-white",
-                    getTimelineColor(event.type)
-                  )}>
-                    {getTimelineIcon(event.type)}
-                  </span>
-                  
-                  {/* Content */}
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-gray-400 font-black uppercase tracking-wider">{event.date}</span>
-                      <span className="text-gray-300">•</span>
-                      <span className="text-xs font-bold text-gray-600 flex items-center gap-1">
-                        <User className="w-3 h-3 text-gray-400" /> {event.user}
-                      </span>
+              {issue.timeline && issue.timeline.length > 0 ? (
+                issue.timeline.map((event: any, index: number) => (
+                  <div key={index} className="relative">
+                    <span className={cn(
+                      "absolute -left-[37px] top-0.5 flex h-6 w-6 items-center justify-center rounded-full border-2 ring-4 ring-white",
+                      getTimelineColor(event.type)
+                    )}>
+                      {getTimelineIcon(event.type)}
+                    </span>
+                    
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-gray-400 font-black uppercase tracking-wider">
+                          {event.createdAt ? new Date(event.createdAt).toLocaleDateString() : event.date}
+                        </span>
+                        <span className="text-gray-300">•</span>
+                        <span className="text-xs font-bold text-gray-600 flex items-center gap-1">
+                          <User className="w-3 h-3 text-gray-400" /> {event.actorName || event.user}
+                        </span>
+                      </div>
+                      <h5 className="text-sm font-bold text-gray-800 mt-1 capitalize">
+                        {event.type.replace("_", " ")}
+                      </h5>
+                      <p className="text-xs text-gray-500 mt-1 leading-relaxed bg-gray-50/50 p-2.5 rounded-xl border border-gray-50">
+                        {event.note}
+                      </p>
                     </div>
-                    <h5 className="text-sm font-bold text-gray-800 mt-1 capitalize">
-                      {event.type.replace("_", " ")}
-                    </h5>
-                    <p className="text-xs text-gray-500 mt-1 leading-relaxed bg-gray-50/50 p-2.5 rounded-xl border border-gray-50">
-                      {event.note}
-                    </p>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <div className="text-xs text-gray-400 font-medium">No timeline events logged.</div>
+              )}
             </div>
           </div>
         </div>
@@ -183,14 +215,14 @@ export default function StaffIssueDetailsPage({ params }: { params: { id: string
         <div className="space-y-4 pt-2">
           <h4 className="text-xs font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
             <Wrench className="w-4 h-4 text-gray-500" />
-            Log Operational Note
+            Log Handoff Note
           </h4>
           
           <div className="space-y-2">
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="e.g., Temp fix applied to sensor mounting bracket. Watch condition set for 1st Shift."
+              placeholder="Provide a detailed log update. (e.g. Cleared guide rails transition jams, verified Line 2 operational continuity.)"
               className="w-full h-28 bg-white border border-gray-200 rounded-2xl p-4 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#101828]/10 placeholder:text-gray-400 resize-none"
             />
           </div>
@@ -220,8 +252,9 @@ export default function StaffIssueDetailsPage({ params }: { params: { id: string
         <button 
           onClick={handleAction}
           disabled={isUpdating}
-          className="w-full bg-[#101828] text-white py-4 rounded-2xl font-bold shadow-lg shadow-gray-100 mt-4 active:scale-95 transition-all flex items-center justify-center gap-2"
+          className="w-full bg-[#101828] text-white py-4 rounded-2xl font-bold shadow-lg shadow-gray-100 mt-4 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50"
         >
+          {isUpdating && <Loader2 className="w-4 h-4 animate-spin" />}
           Confirm State Change & Note
         </button>
       </div>

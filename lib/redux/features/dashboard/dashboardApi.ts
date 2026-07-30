@@ -55,6 +55,28 @@ const dashboardApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [tagTypes.artwork],
     }),
+    getDepartments: builder.query({
+      query: () => ({
+        url: "/departments",
+        method: "GET",
+      }),
+      providesTags: [tagTypes.artwork],
+    }),
+    addDepartment: builder.mutation({
+      query: (data) => ({
+        url: "/departments",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.artwork],
+    }),
+    deleteDepartment: builder.mutation({
+      query: (id) => ({
+        url: `/departments/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [tagTypes.artwork],
+    }),
   }),
 });
 
@@ -65,5 +87,8 @@ export const {
   useGetLinesQuery,
   useAddLineMutation,
   useUpdateLineStatusMutation,
-  useDeleteLineMutation
+  useDeleteLineMutation,
+  useGetDepartmentsQuery,
+  useAddDepartmentMutation,
+  useDeleteDepartmentMutation
 } = dashboardApi;

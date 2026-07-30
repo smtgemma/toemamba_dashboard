@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
+import { AssignIssueModal } from "./AssignIssueModal";
 import { CATEGORIES } from "@/constants/dummy";
 
 interface IssueCardProps {
@@ -47,6 +48,7 @@ const categoryIcons: Record<string, any> = {
 };
 
 export const IssueCard = ({
+  id,
   priority,
   content,
   category: initialCategory = "Maintenance",
@@ -61,6 +63,7 @@ export const IssueCard = ({
 }: IssueCardProps) => {
   const [isEditing, setIsEditing] = useState(isNew);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(initialCategory);
   const [textContent, setTextContent] = useState(content);
@@ -206,7 +209,17 @@ export const IssueCard = ({
             </button>
           </div>
         ) : (
-          <span className="text-xs text-gray-300 font-semibold">{date}</span>
+          <div className="flex items-center gap-3">
+            {status === "Open" && (
+              <button 
+                onClick={() => setIsAssignModalOpen(true)}
+                className="px-4 py-2 bg-[#101828] text-white hover:bg-gray-800 text-xs font-bold rounded-xl shadow-sm transition-all"
+              >
+                Assign Staff
+              </button>
+            )}
+            <span className="text-xs text-gray-300 font-semibold">{date}</span>
+          </div>
         )}
       </div>
 
@@ -214,6 +227,13 @@ export const IssueCard = ({
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
+      />
+
+      <AssignIssueModal
+        isOpen={isAssignModalOpen}
+        onClose={() => setIsAssignModalOpen(false)}
+        issueId={id || ""}
+        currentCategory={currentCategory}
       />
     </div>
   );

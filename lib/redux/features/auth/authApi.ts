@@ -1,32 +1,26 @@
 import Cookies from "js-cookie";
 import { baseApi } from "../../api/baseApi";
 import { tagTypes } from "../../tagTypes";
+import { body } from "framer-motion/client";
 
 const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    register: builder.mutation({
+    addUser: builder.mutation({
       query: (data) => ({
-        url: "/auth/register",
+        url: "/auth/invite-staff",
         method: "POST",
         body: data,
+        credentials: "include",
       }),
       invalidatesTags: [tagTypes.me],
     }),
 
-    verifyOtp: builder.mutation({
+    setupPassword: builder.mutation({
       query: (data) => ({
-        url: "/auth/verify-otp",
+        url: "/auth/setup-password",
         method: "POST",
         body: data,
-      }),
-      invalidatesTags: [tagTypes.me],
-    }),
-
-    resendOtp: builder.mutation({
-      query: (data) => ({
-        url: "/auth/resend-otp",
-        method: "POST",
-        body: data,
+        credentials: "include",
       }),
       invalidatesTags: [tagTypes.me],
     }),
@@ -52,38 +46,6 @@ const authApi = baseApi.injectEndpoints({
       },
     }),
 
-    forgotPassword: builder.mutation({
-      query: (data) => ({
-        url: "/auth/forgot-password",
-        method: "POST",
-        body: data,
-      }),
-    }),
-
-    verifyResetPassOtp: builder.mutation({
-      query: (data) => ({
-        url: "/auth/verify-reset-password-otp",
-        method: "POST",
-        body: data,
-      }),
-    }),
-
-    resetPassword: builder.mutation({
-      query: (data) => ({
-        url: "/auth/reset-password",
-        method: "POST",
-        body: data,
-      }),
-    }),
-
-    changePassword: builder.mutation({
-      query: (data) => ({
-        url: "/auth/change-password",
-        method: "PUT",
-        body: data,
-      }),
-    }),
-
     getMe: builder.query({
       query: () => ({
         url: "/auth/me",
@@ -92,17 +54,75 @@ const authApi = baseApi.injectEndpoints({
       }),
       providesTags: [tagTypes.artwork],
     }),
+
+    forgetPassword: builder.mutation({
+      query: (data) => ({
+        url: "/auth/forgot-password",
+        method: "POST",
+        body: data,
+        credentials: "include",
+      }),
+      invalidatesTags: [tagTypes.me],
+    }),
+
+    resetPassword: builder.mutation({
+      query: (data) => ({
+        url: "/auth/reset-password",
+        method: "POST",
+        body: data,
+        credentials: "include",
+      }),
+      invalidatesTags: [tagTypes.me],
+    }),
+
+    verifyResetPassOtp: builder.mutation({
+      query: (data) => ({
+        url: "/auth/verify-reset-password-otp",
+        method: "POST",
+        body: data,
+        credentials: "include",
+      }),
+      invalidatesTags: [tagTypes.me],
+    }),
+    verifyOtp: builder.mutation({
+      query: (data) => ({
+        url: "/auth/verify-otp",
+        method: "POST",
+        body: data,
+        credentials: "include",
+      }),
+      invalidatesTags: [tagTypes.me],
+    }),
+    resendOtp: builder.mutation({
+      query: (data) => ({
+        url: "/auth/resend-otp",
+        method: "POST",
+        body: data,
+        credentials: "include",
+      }),
+      invalidatesTags: [tagTypes.me],
+    }),
+    changePassword: builder.mutation({
+      query: (data) => ({
+        url: "/auth/change-password",
+        method: "PUT",
+        body: data,
+        credentials: "include",
+      }),
+      invalidatesTags: [tagTypes.me],
+    }),
   }),
 });
 
 export const {
-  useRegisterMutation,
+  useAddUserMutation,
+  useGetMeQuery,
   useLoginMutation,
-  useForgotPasswordMutation,
+  useSetupPasswordMutation,
+  useForgetPasswordMutation,
   useVerifyResetPassOtpMutation,
   useResetPasswordMutation,
   useChangePasswordMutation,
-  useGetMeQuery,
   useVerifyOtpMutation,
   useResendOtpMutation,
 } = authApi;

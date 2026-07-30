@@ -13,14 +13,39 @@ import {
   Activity,
   History,
   TrendingUp,
-  RotateCcw
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import AppPagination from "@/components/shared/Pagination";
-import { DUMMY_ISSUES, PRIORITIES } from "@/constants/dummy";
+import { PRIORITIES } from "@/constants/dummy";
+import { 
+  useGetIssuesQuery, 
+  useGetAiSummaryQuery, 
+  useGetRecurringIssuesQuery 
+} from "@/lib/redux/features/issues/issuesApi";
 
-const ITEMS_PER_PAGE = 3;
+const ITEMS_PER_PAGE = 6;
+
+const CardSkeleton = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {[...Array(4)].map((_, i) => (
+      <div key={i} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-4 animate-pulse">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3 w-2/3">
+            <div className="w-10 h-10 bg-gray-100 rounded-xl shrink-0" />
+            <div className="space-y-2 flex-1">
+              <div className="h-4 bg-gray-100 rounded w-3/4" />
+              <div className="h-3 bg-gray-100 rounded w-1/3" />
+            </div>
+          </div>
+          <div className="h-6 bg-gray-100 rounded w-12" />
+        </div>
+        <div className="h-8 bg-gray-50 rounded w-full border border-gray-100/50" />
+      </div>
+    ))}
+  </div>
+);
 
 export default function StaffHomePage() {
   const [activeStatus, setActiveStatus] = useState("Open");
@@ -28,39 +53,41 @@ export default function StaffHomePage() {
   const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Status List matching the client's new flow
+  // Status list matching MVP status flow
   const STATUS_FLOW = ["Open", "Monitoring", "In Progress", "Resolved"];
 
-  // 1. Filtered issues based on Status & Priority
-  const filteredIssues = useMemo(() => {
-    return DUMMY_ISSUES.filter((issue) => {
-      const matchesStatus = activeStatus === "All" || issue.status.toLowerCase() === activeStatus.toLowerCase();
-      const matchesPriority = !priorityFilter || issue.priority === priorityFilter;
-      return matchesStatus && matchesPriority;
-    });
-  }, [activeStatus, priorityFilter]);
+  // Fetch live operational issues
+  const { data: issuesData, isLoading: isIssuesLoading } = useGetIssuesQuery({
+    status: activeStatus,
+    priority: priorityFilter
+  });
+  const { data: aiSummaryData } = useGetAiSummaryQuery({ role: "MAINTENANCE" });
+  const { data: recurringData } = useGetRecurringIssuesQuery({});
 
-  const totalPages = Math.ceil(filteredIssues.length / ITEMS_PER_PAGE);
+  const issuesList = useMemo(() => {
+    return Array.isArray(issuesData) ? issuesData : (issuesData?.data || []);
+  }, [issuesData]);
 
+  const recurringProblems = useMemo(() => {
+    return Array.isArray(recurringData) ? recurringData : (recurringData?.data || []);
+  }, [recurringData]);
+
+  const activeCarryoverCount = useMemo(() => {
+    return issuesList.filter((i: any) => i.status === "Open" || i.status === "In Progress").length;
+  }, [issuesList]);
+
+  // Pagination
+  const totalPages = Math.ceil(issuesList.length / ITEMS_PER_PAGE);
   const paginatedIssues = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredIssues.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredIssues, currentPage]);
+    return issuesList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [issuesList, currentPage]);
 
-  // 2. Carryover & Open Issues (all issues with status Open or In Progress)
-  const carryoverIssues = useMemo(() => {
-    return DUMMY_ISSUES.filter(issue => issue.status === "Open" || issue.status === "In Progress");
-  }, []);
-
-  // 3. Escalating & Monitoring Issues (status Monitoring or marked as escalating)
-  const watchIssues = useMemo(() => {
-    return DUMMY_ISSUES.filter(issue => issue.status === "Monitoring" || issue.isEscalating);
-  }, []);
-
-  // 4. Recurring Problems list
-  const recurringProblems = useMemo(() => {
-    return DUMMY_ISSUES.filter(issue => issue.isRecurring);
-  }, []);
+  const aiSummary = aiSummaryData?.data?.summary || "No active equipment risks reported for this shift. Review carryover tasks.";
+  const aiBullets = aiSummaryData?.data?.bullets || [
+    "Verify Line 2 guide rail calibrator is properly tensioned.",
+    "Monitor boiler house pressure drops."
+  ];
 
   return (
     <StaffLayout category="Maintenance">
@@ -73,7 +100,7 @@ export default function StaffHomePage() {
           </div>
           <div>
             <h2 className="text-lg font-bold text-[#101828]">Operational Issues</h2>
-            <p className="text-sm text-gray-500">{carryoverIssues.length} active carryover items</p>
+            <p className="text-sm text-gray-500">{isIssuesLoading ? "Loading..." : `${activeCarryoverCount} active carryover items`}</p>
           </div>
         </div>
 
@@ -89,20 +116,14 @@ export default function StaffHomePage() {
           </div>
 
           <div className="space-y-3 text-sm text-gray-300">
-            <p className="font-semibold text-gray-200">Summary of risks, watches & repeat occurrences:</p>
+            <p className="font-semibold text-gray-200">{aiSummary}</p>
             <ul className="space-y-2 list-none">
-              <li className="flex items-start gap-2.5">
-                <span className="text-rose-400 mt-0.5">⚠️</span>
-                <span><strong>Boiler pressure drop</strong> is open across 3 shifts; feeds checked, upstream feeds require boiler house investigation.</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-amber-400 mt-0.5">⚙️</span>
-                <span><strong>Conveyor 2 Guide Rail</strong> is under Watch/Monitoring status due to repeat jam occurrences.</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <span className="text-sky-400 mt-0.5">⚡</span>
-                <span><strong>Panel E-03</strong> is escalating with frequent intermittent codes; high risk of unexpected Line A shutdown.</span>
-              </li>
+              {aiBullets.map((bullet: string, index: number) => (
+                <li key={index} className="flex items-start gap-2.5">
+                  <span className="text-rose-400 mt-0.5">⚠️</span>
+                  <span>{bullet}</span>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
@@ -115,21 +136,27 @@ export default function StaffHomePage() {
           </h3>
           
           <div className="space-y-3">
-            {recurringProblems.map((problem) => (
-              <div 
-                key={problem.id} 
-                className="p-4 bg-rose-50/50 border border-rose-100 rounded-2xl flex items-start gap-3"
-              >
-                <div className="p-2 bg-rose-100 text-rose-700 rounded-lg mt-0.5">
-                  <Activity className="w-4 h-4" />
+            {recurringProblems.length > 0 ? (
+              recurringProblems.slice(0, 3).map((problem: any) => (
+                <div 
+                  key={problem.id || problem._id} 
+                  className="p-4 bg-rose-50/50 border border-rose-100 rounded-2xl flex items-start gap-3"
+                >
+                  <div className="p-2 bg-rose-100 text-rose-700 rounded-lg mt-0.5">
+                    <Activity className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-rose-800 uppercase tracking-wider">Recurring Pattern</h4>
+                    <p className="text-sm font-semibold text-rose-900 mt-1">{problem.recurrenceText || `Reported ${problem.content} multiple times this week`}</p>
+                    <p className="text-xs text-rose-600/80 mt-0.5">Surfaced automatically across multiple shifts.</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-xs font-black text-rose-800 uppercase tracking-wider">Recurring Pattern</h4>
-                  <p className="text-sm font-semibold text-rose-900 mt-1">{problem.recurrenceText}</p>
-                  <p className="text-xs text-rose-600/80 mt-0.5">Surfaced automatically across multiple shifts.</p>
-                </div>
+              ))
+            ) : (
+              <div className="p-4 bg-gray-50/50 border border-gray-100 rounded-2xl text-xs text-gray-400 font-medium">
+                No active repeat failure patterns detected.
               </div>
-            ))}
+            )}
           </div>
         </div>
 
@@ -209,13 +236,15 @@ export default function StaffHomePage() {
           </div>
 
           {/* Issues List */}
-          <div className="space-y-3">
-            {paginatedIssues.length > 0 ? (
-              paginatedIssues.map((issue) => (
+          {isIssuesLoading ? (
+            <CardSkeleton />
+          ) : paginatedIssues.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-300">
+              {paginatedIssues.map((issue: any) => (
                 <Link
-                  key={issue.id}
-                  href={`/staff/issue/${issue.id}`}
-                  className="block bg-white border border-gray-100 rounded-2xl p-5 hover:bg-gray-50/50 transition-all shadow-sm relative group"
+                  key={issue.id || issue._id}
+                  href={`/staff/issue/${issue.id || issue._id}`}
+                  className="block bg-white border border-gray-100 rounded-2xl p-5 hover:bg-gray-50/50 transition-all shadow-sm relative group flex flex-col justify-between min-h-[140px]"
                 >
                   <div className="flex items-start justify-between gap-4 mb-3">
                     <div className="flex items-start gap-3">
@@ -247,7 +276,7 @@ export default function StaffHomePage() {
                       )}>
                         {issue.status}
                       </span>
-                      <span className="text-gray-400 font-medium">{issue.carryoverAging}</span>
+                      <span className="text-gray-400 font-medium">{issue.carryoverAging || "Open across 1 shift"}</span>
                     </div>
 
                     {issue.isEscalating && (
@@ -257,13 +286,13 @@ export default function StaffHomePage() {
                     )}
                   </div>
                 </Link>
-              ))
-            ) : (
-              <div className="text-center py-16 bg-white border border-dashed border-gray-200 rounded-2xl">
-                <p className="text-gray-400 text-sm font-semibold">No issues found matching criteria</p>
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16 bg-white border border-dashed border-gray-200 rounded-2xl">
+              <p className="text-gray-400 text-sm font-semibold">No issues found matching criteria</p>
+            </div>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 && (
@@ -286,7 +315,6 @@ export default function StaffHomePage() {
 
           <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-6">
             <div className="relative border-l border-gray-100 ml-3 pl-6 space-y-6">
-              
               <div className="relative">
                 <span className="absolute -left-[31px] top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-rose-500 ring-4 ring-white" />
                 <div className="text-xs text-gray-400 font-bold">Today, 06:45 • 1st Shift</div>
@@ -307,7 +335,6 @@ export default function StaffHomePage() {
                 <h4 className="text-sm font-bold text-gray-800 mt-1">Issue Resolved (Line 4 Oil Leak)</h4>
                 <p className="text-xs text-gray-500 mt-0.5">Replaced seals, topped up hydraulic fluid. Verified leak stopped.</p>
               </div>
-              
             </div>
           </div>
         </div>

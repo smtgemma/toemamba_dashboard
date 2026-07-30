@@ -1,0 +1,18 @@
+now listen what we do .. muloto super visor and admin er ui same sudhu super visor er ui te sidebar nai .. and she sudhu assign korbe maintenance k .. tai amra conditionally banaislilam ui ta okay.. 
+
+read the flow - 
+- operator issue create korbe , 
+-tarpor sheta supervisor and admin er ui te dekhabo 
+- supervisor ba admin just assign korbe maintenace(staff k) 
+- staff tarpor segulo resolve kore ba shei issue er status update korbe .. 
+
+
+- admin will add user , in the user email will go the redirect link to set password page from their they will set new password and then they can access.
+- admin will add department  , shift , line 
+
+
+
+our first taks is
+- do to the authentication flow properly
+- then admin will add user , department , shift , line
+

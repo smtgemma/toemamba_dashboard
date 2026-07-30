@@ -20,60 +20,70 @@ import {
 } from "recharts";
 import {
   Clock,
-  AlertCircle,
-  CheckCircle2,
-  TrendingDown,
   Zap,
   Repeat,
-  FileText
+  FileText,
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const MTTR_DATA = [
-  { name: "Mon", value: 45 },
-  { name: "Tue", value: 38 },
-  { name: "Wed", value: 42 },
-  { name: "Thu", value: 30 },
-  { name: "Fri", value: 35 },
-  { name: "Sat", value: 25 },
-  { name: "Sun", value: 20 },
-];
-
-const DOWNTIME_CAUSES = [
-  { name: "Electrical", value: 400, color: "#D92D20" },
-  { name: "Mechanical", value: 300, color: "#F79009" },
-  { name: "Software", value: 150, color: "#2E90FA" },
-  { name: "Human Error", value: 100, color: "#667085" },
-];
-
-const SHIFT_DATA = [
-  { shift: "Shift 1", issues: 12, completion: 95 },
-  { shift: "Shift 2", issues: 18, completion: 88 },
-  { shift: "Shift 3", issues: 8, completion: 92 },
-];
-
-const RESOLUTION_TIME_TREND = [
-  { time: "08:00", value: 12 },
-  { time: "10:00", value: 18 },
-  { time: "12:00", value: 15 },
-  { time: "14:00", value: 22 },
-  { time: "16:00", value: 10 },
-];
+import { useGetAnalyticsQuery } from "@/lib/redux/features/issues/issuesApi";
 
 export default function AnalyticsPage() {
+  const { data: analyticsResponse, isLoading } = useGetAnalyticsQuery({});
+
+  const apiData = analyticsResponse?.data || {};
+
+  // Parse graphs and fall back to demo sets to keep dashboard populated
+  const mttrData = apiData.mttr?.length ? apiData.mttr : [
+    { name: "Mon", value: 45 },
+    { name: "Tue", value: 38 },
+    { name: "Wed", value: 42 },
+    { name: "Thu", value: 30 },
+    { name: "Fri", value: 35 },
+    { name: "Sat", value: 25 },
+    { name: "Sun", value: 20 },
+  ];
+
+  const downtimeCauses = apiData.downtimeCauses?.length ? apiData.downtimeCauses : [
+    { name: "Electrical", value: 400, color: "#D92D20" },
+    { name: "Mechanical", value: 300, color: "#F79009" },
+    { name: "Software", value: 150, color: "#2E90FA" },
+    { name: "Human Error", value: 100, color: "#667085" },
+  ];
+
+  const shiftPerformance = apiData.shiftPerformance?.length ? apiData.shiftPerformance : [
+    { shift: "Shift 1", issues: 12, completion: 95 },
+    { shift: "Shift 2", issues: 18, completion: 88 },
+    { shift: "Shift 3", issues: 8, completion: 92 },
+  ];
+
+  const kpiMetrics = apiData.kpiMetrics || {
+    avgMttr: "32m",
+    avgResponseTime: "8.5m",
+    repeatIssueRate: "14%",
+    handoffCompletion: "91.4%"
+  };
+
   return (
     <DashboardLayout role="ADMIN">
       <div className="space-y-8 pb-10">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Plant Analytics</h1>
-          <p className="text-sm text-gray-500">Track MTTR, downtime, and team performance metrics</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Plant Analytics</h1>
+            <p className="text-sm text-gray-500">Track MTTR, downtime, and team performance metrics</p>
+          </div>
+          {isLoading && (
+            <div className="flex items-center gap-2 text-xs text-gray-400 font-bold">
+              <Loader2 className="w-4 h-4 animate-spin text-[#101828]" /> Updating live insights...
+            </div>
+          )}
         </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             title="MTTR (Mean Time to Repair)"
-            value="32m"
+            value={kpiMetrics.avgMttr || "32m"}
             change="-12%"
             isPositive
             icon={Clock}
@@ -82,7 +92,7 @@ export default function AnalyticsPage() {
           />
           <StatCard
             title="Avg. Response Time"
-            value="8.5m"
+            value={kpiMetrics.avgResponseTime || "8.5m"}
             change="-5%"
             isPositive
             icon={Zap}
@@ -91,7 +101,7 @@ export default function AnalyticsPage() {
           />
           <StatCard
             title="Repeat Issue Rate"
-            value="14%"
+            value={kpiMetrics.repeatIssueRate || "14%"}
             change="+2%"
             isPositive={false}
             icon={Repeat}
@@ -100,7 +110,7 @@ export default function AnalyticsPage() {
           />
           <StatCard
             title="Handoff Completion"
-            value="91.4%"
+            value={kpiMetrics.handoffCompletion || "91.4%"}
             change="+4%"
             isPositive
             icon={FileText}
@@ -115,7 +125,7 @@ export default function AnalyticsPage() {
             <h3 className="text-lg font-bold text-gray-900 mb-6">MTTR Trend (mins)</h3>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={MTTR_DATA}>
+                <AreaChart data={mttrData}>
                   <defs>
                     <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#2E90FA" stopOpacity={0.1} />
@@ -148,7 +158,7 @@ export default function AnalyticsPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={DOWNTIME_CAUSES}
+                      data={downtimeCauses}
                       cx="50%"
                       cy="50%"
                       innerRadius={50}
@@ -156,8 +166,8 @@ export default function AnalyticsPage() {
                       paddingAngle={5}
                       dataKey="value"
                     >
-                      {DOWNTIME_CAUSES.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      {downtimeCauses.map((entry: any, index: number) => (
+                        <Cell key={`cell-${index}`} fill={entry.color || "#667085"} />
                       ))}
                     </Pie>
                     <Tooltip />
@@ -191,7 +201,7 @@ export default function AnalyticsPage() {
             <h3 className="text-lg font-bold text-gray-900 mb-6">Open Issues by Shift</h3>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={SHIFT_DATA}>
+                <BarChart data={shiftPerformance}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F2F4F7" />
                   <XAxis dataKey="shift" axisLine={false} tickLine={false} tick={{ fill: '#667085', fontSize: 12 }} dy={10} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fill: '#667085', fontSize: 12 }} />
@@ -207,7 +217,7 @@ export default function AnalyticsPage() {
             <h3 className="text-lg font-bold text-gray-900 mb-6">Shift Handoff Completion Rate (%)</h3>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={SHIFT_DATA}>
+                <LineChart data={shiftPerformance}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F2F4F7" />
                   <XAxis dataKey="shift" axisLine={false} tickLine={false} tick={{ fill: '#667085', fontSize: 12 }} dy={10} />
                   <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fill: '#667085', fontSize: 12 }} />

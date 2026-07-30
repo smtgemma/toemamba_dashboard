@@ -1,0 +1,55 @@
+# Future Expansion (Next Milestone)
+
+The current MVP only supports manually created issues. The following features are planned for future milestones and should be considered when designing the backend architecture.
+
+## 1. QR Code Equipment Identification
+- Generate a unique QR code for each asset/equipment.
+- Scanning the QR code should open the corresponding asset page.
+- Allow users to report issues directly from the asset page.
+- Automatically attach the asset to the created issue.
+
+## 2. PLC / Machine Event Integration
+- Prepare a generic Machine Event API for future integrations.
+- Future PLC/Gateway systems will send machine events to this API.
+- Machine-generated events should enter the existing issue workflow.
+
+## 3. Barcode Scanner Support
+- Support keyboard-emulating barcode scanners.
+- Scanning a barcode should identify the asset and open its details.
+- Reuse the same asset lookup flow as QR codes.
+
+## 4. Industrial Tablet Optimization
+- Optimize the application for common shop-floor devices:
+  - Android tablets
+  - Windows tablets
+  - Rugged tablets
+  - iPads
+- Improve usability with:
+  - Large touch targets
+  - Simple navigation
+  - Landscape & portrait layouts
+  - Camera access for QR scanning and photos
+  - Microphone access for voice input
+  - Minimal typing
+  - Readable UI for industrial environments
+
+## 5. AI-Generated Issues
+- Allow AI to create draft issues from machine events.
+- AI should generate issue title, summary, and suggested priority.
+- Draft issues should be reviewed before entering the normal workflow.
+
+## 6. Microsoft Teams & Email Notifications
+- Support configurable email notifications.
+- Add Microsoft Teams notifications for issue updates.
+- Keep the notification system modular and configurable.
+
+## Architecture Goal
+- Design the backend to support multiple issue sources:
+  - Manual Operator Reports
+  - QR Code
+  - Barcode
+  - PLC / Machine Events
+  - AI
+  - Future Integrations
+- Regardless of the source, every issue should follow the same workflow after creation.
+- Keep the codebase modular so future integrations can plug into the existing workflow without major restructuring.

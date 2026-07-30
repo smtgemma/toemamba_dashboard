@@ -3,14 +3,17 @@
 import React, { useMemo } from "react";
 import { AlertTriangle, AlertCircle, CheckCircle2, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DUMMY_ISSUES } from "@/constants/dummy";
+import { useGetIssuesQuery } from "@/lib/redux/features/issues/issuesApi";
 
 export const StatsCards = () => {
+  const { data: issuesData } = useGetIssuesQuery({});
+  const issuesList = Array.isArray(issuesData) ? issuesData : (issuesData?.data || []);
+
   const statsData = useMemo(() => {
-    const p1Count = DUMMY_ISSUES.filter(issue => issue.priority === "P1" && issue.status !== "Resolved").length;
-    const p2Count = DUMMY_ISSUES.filter(issue => issue.priority === "P2" && issue.status !== "Resolved").length;
-    const p3Count = DUMMY_ISSUES.filter(issue => issue.priority === "P3" && issue.status !== "Resolved").length;
-    const resolvedCount = DUMMY_ISSUES.filter(issue => issue.status === "Resolved").length;
+    const p1Count = issuesList.filter((issue: any) => issue.priority === "P1" && issue.status !== "Resolved").length;
+    const p2Count = issuesList.filter((issue: any) => issue.priority === "P2" && issue.status !== "Resolved").length;
+    const p3Count = issuesList.filter((issue: any) => issue.priority === "P3" && issue.status !== "Resolved").length;
+    const resolvedCount = issuesList.filter((issue: any) => issue.status === "Resolved").length;
 
     return [
       {
