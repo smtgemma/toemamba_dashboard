@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAnalyzeIssueMutation, useSubmitIssueMutation } from "@/lib/redux/features/issues/issuesApi";
-import { useGetLinesQuery } from "@/lib/redux/features/dashboard/dashboardApi";
+import { useGetLinesQuery, useGetShiftsQuery } from "@/lib/redux/features/dashboard/dashboardApi";
 import { useGetMeQuery } from "@/lib/redux/features/auth/authApi";
 
 type Step = "input" | "processing" | "summary";
@@ -28,8 +28,10 @@ export default function OperatorHandoffPage() {
   const router = useRouter();
   const { data: userData } = useGetMeQuery({});
   const { data: linesData } = useGetLinesQuery({});
+  const { data: shiftsData } = useGetShiftsQuery({});
 
   const linesList = Array.isArray(linesData) ? linesData : (linesData?.data || []);
+  const shiftsList = Array.isArray(shiftsData) ? shiftsData : (shiftsData?.data || []);
 
   const [analyzeIssue] = useAnalyzeIssueMutation();
   const [submitIssue, { isLoading: isSubmitting }] = useSubmitIssueMutation();
@@ -65,6 +67,8 @@ export default function OperatorHandoffPage() {
 
     if (userData?.data?.shift) {
       setSelectedShift(userData?.data?.shift);
+    } else if (shiftsList.length > 0) {
+      setSelectedShift(shiftsList[0].name);
     }
 
     // Set today's date
@@ -73,7 +77,7 @@ export default function OperatorHandoffPage() {
     const mm = String(today.getMonth() + 1).padStart(2, "0");
     const dd = String(today.getDate()).padStart(2, "0");
     setFormattedDate(`${yyyy}-${mm}-${dd}`);
-  }, [userData, linesList]);
+  }, [userData, linesList, shiftsList]);
 
   // Audio Recording API
   const handleToggleRecord = async () => {
@@ -311,13 +315,16 @@ export default function OperatorHandoffPage() {
         <div className="space-y-2">
           <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Shift</label>
           <div className="grid grid-cols-3 gap-2">
-            {["1st Shift", "2nd Shift", "3rd Shift"].map((s) => (
+            {(shiftsList.length > 0 
+              ? shiftsList.map((s: any) => s.name) 
+              : ["1st Shift", "2nd Shift", "3rd Shift"]
+            ).map((s: string) => (
               <button
                 key={s}
                 type="button"
                 onClick={() => setSelectedShift(s)}
                 className={cn(
-                  "py-3 rounded-xl text-xs font-bold border transition-all h-10",
+                  "py-3 px-2 rounded-xl text-xs font-bold border transition-all h-10 truncate",
                   selectedShift === s ? "border-[#101828] text-[#101828] bg-white shadow-sm" : "border-gray-100 text-gray-400 bg-white hover:bg-gray-50"
                 )}
               >
