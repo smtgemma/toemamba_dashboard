@@ -92,8 +92,8 @@ export default function UserManagementPage() {
       const payload = {
         name: data.name,
         email: data.email,
-        role: data.role.toUpperCase(),
-        staffRole: data.role === "Staff" ? data.staffRole : undefined,
+        role: data.role === "Maintenance" ? "MAINTENANCE" : data.role.toUpperCase(),
+        staffRole: data.role === "Maintenance" ? data.staffRole : undefined,
         line: data.line,
         shift: data.shift || "1st Shift"
       };

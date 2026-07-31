@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { X, ChevronDown, Loader2 } from "lucide-react";
 import { useGetAllUserQuery } from "@/lib/redux/features/user/userApi";
 import { useAssignIssueMutation } from "@/lib/redux/features/issues/issuesApi";
+import { useGetDepartmentsQuery } from "@/lib/redux/features/dashboard/dashboardApi";
 import { CATEGORIES } from "@/constants/dummy";
 import { toast } from "sonner";
 
@@ -19,8 +20,12 @@ export const AssignIssueModal = ({ isOpen, onClose, issueId, currentCategory = "
   const [assignedUserId, setAssignedUserId] = useState("");
   const [note, setNote] = useState("");
 
-  const { data: staffData, isLoading: isStaffLoading } = useGetAllUserQuery({ role: "STAFF" });
+  const { data: deptsData } = useGetDepartmentsQuery({});
+  const { data: staffData, isLoading: isStaffLoading } = useGetAllUserQuery({ role: "MAINTENANCE" });
   const [assignIssue, { isLoading: isAssigning }] = useAssignIssueMutation();
+
+  const deptsList = Array.isArray(deptsData) ? deptsData : (deptsData?.data || []);
+  const categoriesList = deptsList.length > 0 ? deptsList.map((d: any) => d.name) : CATEGORIES;
 
   const staffList = Array.isArray(staffData) ? staffData : (staffData?.data || []);
   const filteredStaff = staffList.filter((s: any) => s.staffRole === selectedCategory);
@@ -78,7 +83,7 @@ export const AssignIssueModal = ({ isOpen, onClose, issueId, currentCategory = "
                 }}
                 className="w-full px-4 py-3 bg-[#F9FAFB] border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-sm appearance-none"
               >
-                {CATEGORIES.map((cat) => (
+                {categoriesList.map((cat) => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>

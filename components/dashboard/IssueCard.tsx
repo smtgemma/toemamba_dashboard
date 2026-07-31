@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
 import { AssignIssueModal } from "./AssignIssueModal";
+import { useGetDepartmentsQuery } from "@/lib/redux/features/dashboard/dashboardApi";
 import { CATEGORIES } from "@/constants/dummy";
 
 interface IssueCardProps {
@@ -67,6 +68,10 @@ export const IssueCard = ({
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(initialCategory);
   const [textContent, setTextContent] = useState(content);
+
+  const { data: deptsData } = useGetDepartmentsQuery({});
+  const deptsList = Array.isArray(deptsData) ? deptsData : (deptsData?.data || []);
+  const categoriesList = deptsList.length > 0 ? deptsList.map((d: any) => d.name) : CATEGORIES;
 
   const CategoryIcon = categoryIcons[currentCategory] || Wrench;
 
@@ -167,7 +172,7 @@ export const IssueCard = ({
 
             {isEditing && showCategoryDropdown && (
               <div className="absolute bottom-full left-0 mb-1 w-48 bg-white border border-gray-100 rounded-lg shadow-lg z-50 py-1">
-                {CATEGORIES.map((cat) => (
+                {categoriesList.map((cat) => (
                   <button
                     key={cat}
                     onClick={() => {

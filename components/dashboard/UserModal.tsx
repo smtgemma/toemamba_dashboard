@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { cn } from "@/lib/utils";
 import { CATEGORIES } from "@/constants/dummy";
-import { useGetLinesQuery, useGetShiftsQuery } from "@/lib/redux/features/dashboard/dashboardApi";
+import { useGetLinesQuery, useGetShiftsQuery, useGetDepartmentsQuery } from "@/lib/redux/features/dashboard/dashboardApi";
 
 const userSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -29,14 +29,17 @@ interface UserModalProps {
   isLoading?: boolean;
 }
 
-const ROLES = ["Supervisor", "Operator", "Staff"];
+const ROLES = ["Supervisor", "Operator", "Maintenance"];
 
 export const UserModal = ({ isOpen, onClose, onSubmit, initialData, mode, isLoading }: UserModalProps) => {
   const { data: linesData } = useGetLinesQuery({});
   const { data: shiftsData } = useGetShiftsQuery({});
+  const { data: deptsData } = useGetDepartmentsQuery({});
 
   const linesList = Array.isArray(linesData) ? linesData : (linesData?.data || []);
   const shiftsList = Array.isArray(shiftsData) ? shiftsData : (shiftsData?.data || []);
+  const deptsList = Array.isArray(deptsData) ? deptsData : (deptsData?.data || []);
+  const categoriesList = deptsList.length > 0 ? deptsList.map((d: any) => d.name) : CATEGORIES;
 
   const {
     register,
@@ -57,7 +60,7 @@ export const UserModal = ({ isOpen, onClose, onSubmit, initialData, mode, isLoad
       const rawRole = initialData.role || "";
       const mappedRole = rawRole.toUpperCase() === "SUPERVISOR" ? "Supervisor" :
                          rawRole.toUpperCase() === "OPERATOR" ? "Operator" :
-                         rawRole.toUpperCase() === "STAFF" ? "Staff" : rawRole;
+                         (rawRole.toUpperCase() === "STAFF" || rawRole.toUpperCase() === "MAINTENANCE") ? "Maintenance" : rawRole;
 
       reset({
         name: initialData.name || "",
@@ -130,8 +133,8 @@ export const UserModal = ({ isOpen, onClose, onSubmit, initialData, mode, isLoad
             {errors.role && <p className="text-[10px] text-red-500 font-semibold">{errors.role.message}</p>}
           </div>
 
-          {/* Staff Category role (only visible for Staff) */}
-          {selectedRole === "Staff" && (
+          {/* Staff Category role (only visible for Maintenance) */}
+          {selectedRole === "Maintenance" && (
             <div className="space-y-1.5 animate-in slide-in-from-top-2 duration-200">
               <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Staff Role</label>
               <div className="relative">
@@ -141,7 +144,7 @@ export const UserModal = ({ isOpen, onClose, onSubmit, initialData, mode, isLoad
                   className="w-full px-4 py-3 bg-[#F9FAFB] border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 appearance-none text-sm disabled:opacity-70"
                 >
                   <option value="">Select category</option>
-                  {CATEGORIES.map((cat) => (
+                  {categoriesList.map((cat) => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
