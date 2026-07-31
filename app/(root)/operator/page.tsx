@@ -33,8 +33,8 @@ export default function OperatorHomePage() {
   const operatorName = userData?.data?.fullName || "Operator";
   const operatorLine = userData?.data?.line || "Line 2";
 
-  // Fetch issues for the operator's line
-  const { data: issuesData, isLoading: isIssuesLoading } = useGetIssuesQuery({ line: operatorLine });
+  // Fetch issues reported by this operator
+  const { data: issuesData, isLoading: isIssuesLoading } = useGetIssuesQuery({ reporterId: "me" });
   const { data: aiSummaryData } = useGetAiSummaryQuery({ role: "OPERATOR" });
 
   const lineIssues = useMemo(() => {

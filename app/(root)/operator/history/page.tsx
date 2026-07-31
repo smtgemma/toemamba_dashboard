@@ -35,8 +35,8 @@ export default function OperatorHistoryPage() {
   const { data: userData } = useGetMeQuery({});
   const operatorLine = userData?.data?.line || "Line 2";
 
-  // Fetch issues for Operator's specific line
-  const { data: issuesData, isLoading } = useGetIssuesQuery({ line: operatorLine });
+  // Fetch issues reported by this operator
+  const { data: issuesData, isLoading } = useGetIssuesQuery({ reporterId: "me" });
   
   const issuesList = useMemo(() => {
     return Array.isArray(issuesData) ? issuesData : (issuesData?.data || []);

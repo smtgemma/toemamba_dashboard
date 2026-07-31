@@ -141,7 +141,7 @@ export default function OperatorHandoffPage() {
 
     try {
       const formData = new FormData();
-      formData.append("type", inputMode);
+      formData.append("type", inputMode === "paste" ? "text" : inputMode);
       formData.append("line", selectedLine);
       formData.append("shift", selectedShift);
 
@@ -194,7 +194,7 @@ export default function OperatorHandoffPage() {
       <div className="text-center space-y-2">
         <h2 className="text-xl font-bold text-[#101828]">Start Shift Handoff</h2>
         <p className="text-xs text-gray-500 px-4">
-          Upload or capture your shift notes. The Gemini AI will structure and categorize them automatically.
+          Upload or capture your shift notes. The AI assistant will structure and categorize them automatically.
         </p>
       </div>
 
@@ -363,7 +363,7 @@ export default function OperatorHandoffPage() {
       </div>
 
       <div className="text-center space-y-4 w-full max-w-xs">
-        <h2 className="text-base font-bold text-gray-900">Gemini AI parsing notes...</h2>
+        <h2 className="text-base font-bold text-gray-900">Analyzing shift handoff notes...</h2>
         <div className="space-y-2 text-xs text-gray-400 font-medium">
           <p>Analyzing parameters, extracting downtime events, and prioritizing carryover alerts.</p>
         </div>
@@ -382,7 +382,7 @@ export default function OperatorHandoffPage() {
       <div className="p-6 space-y-6 animate-in slide-in-from-bottom-4 duration-300">
         <div className="space-y-1">
           <h2 className="text-xl font-bold text-[#101828]">Shift Handoff Summary</h2>
-          <p className="text-xs text-gray-500">Review structural items surfaced by Gemini AI</p>
+          <p className="text-xs text-gray-500">Review detected structural items</p>
         </div>
 
         {/* AI Summary Banner */}

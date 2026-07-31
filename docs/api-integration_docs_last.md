@@ -1,293 +1,260 @@
----
+# 🤖 Shyfty Phase 1 MVP - Gemini AI Integration Guide for Frontend
 
-## 🔒 2. Role-Based Scopes & Data Leakage Prevention (`GET /api/v1/issues`)
-
-The backend inspects the requesting user's JWT token payload (`userId`, `role`, `staffRole`, `line`) and automatically applies strict industrial data isolation:
-
-### Role Visibility Rules:
-1. **`SUPER_ADMIN` & `SUPERVISOR`**:
-   - Full visibility across all plant issues, lines, shifts, and departments.
-   - Allowed optional query parameters: `status`, `priority`, `line`, `staffCategory`, `assignedUserId`.
-2. **`OPERATOR`**:
-   - Can only view issues reported by themselves OR belonging to their assigned line.
-3. **`MAINTENANCE` (Technicians)**:
-   - Cannot view raw unassigned operator logs.
-   - Can ONLY view issues assigned to their department (`staffCategory` / `staffRole`) OR directly assigned to their User ID (`assignedUserId`).
-
-### Endpoint:
-- **`GET /api/v1/issues`**
-- **`GET /api/v1/issues/my-issues`** (Convenience endpoint for logged-in technician's assigned tasks)
-
-#### Optional Query Filters (for Supervisors/Admins):
-- `?status=Pending_Verification` (or `Open`, `In Progress`, `Monitoring`, `Resolved`)
-- `?priority=P1` (or `P2`, `P3`)
-- `?line=Line%202`
-- `?staffCategory=Electrical`
-- `?assignedUserId=u3_user_uuid` (or `assignedUserId=me`)
+This document explains how the frontend developer should integrate the Google Gemini 2.5 Flash AI Engine endpoints for Text, Voice Audio Clips, Image OCR Parsing, Next Shift AI Summaries, and Plant Analytics.
 
 ---
 
-## 🎯 3. Issue Triage & Assignment (`PATCH /api/v1/issues/:id/assign`)
+## 📌 Overview of AI Capabilities
 
-Supervisors triage raw issues and assign them to a department or specific technician.
+1. Step 1 AI Analysis Engine (`POST /api/v1/issues/analyze`):
+   - Parses raw text, uploaded voice audio clips (.wav/.mp3), or image OCR reports (.jpg/.png).
+   - Powered live by Gemini 2.5 Flash.
+   - Generates:
+     - Summary: Concise high-level alert statement.
+     - Detected Issues: Priority-routed failures (P1, P2, P3).
+     - Action Checklist: Actionable tasks for incoming technicians/operators.
+     - Pending Questions: Critical missing details to ask outgoing shift leads.
+   - No Database Write: This is an interactive preview endpoint. The user can review/edit the AI output before submitting.
 
-- **Endpoint:** `PATCH /api/v1/issues/:id/assign`
-- **Authorization:** `SUPERVISOR`, `SUPER_ADMIN`, `ADMIN`
-- **Request Body (JSON):**
-  ```json
-  {
-    "staffCategory": "Electrical", // Active Department Name (Mandatory)
-    "assignedUserId": "u3_uuid_1234", // Optional: Specific technician ID
-    "note": "Assigned to Cody for electrical motor inspection." // Mandatory (400 Bad Request if empty)
-  }
-  ```
-- **Success Response (200 OK):**
-  ```json
-  {
-    "success": true,
-    "message": "Issue assigned successfully",
-    "data": {
-      "id": "issue-100",
-      "status": "Open",
-      "staffCategory": "Electrical",
-      "assignedTo": "Cody Fisher"
-    }
-  }
-  ```
+2. Step 2 Final Issue Submission (`POST /api/v1/issues`):
+   - Saves the confirmed issue and AI analysis payload to the PostgreSQL database.
+
+3. Next Shift AI Summary (`GET /api/v1/issues/ai-summary`):
+   - Generates role-customized shift summaries (OPERATOR, MAINTENANCE, ADMIN) for incoming shift handovers using Gemini 2.5 Flash.
 
 ---
 
-## ⚙️ 4. Technician Status Update & State Transition Validations
+## 🛠 1. Step 1: AI Handoff Preview & Analysis (POST /api/v1/issues/analyze)
 
-Technicians update task progress as they work, watch, or complete repairs.
+- Route: POST /api/v1/issues/analyze
+- Headers:
+  - Authorization: Bearer <accessToken>
+  - Content-Type: multipart/form-data
 
-- **Endpoint:** `PATCH /api/v1/issues/:id/status-update`
-- **Request Body (JSON):**
-  ```json
-  {
-    "status": "In Progress" | "Monitoring" | "Pending_Verification",
-    "note": "Temporary wrap applied to leak. Machine put on Watch.", // Mandatory (400 Bad Request if empty)
-    "isTemporaryFix": true // Required if status is "Monitoring"
-  }
-  ```
+### Request Body (FormData):
 
-### Backend Validations:
-
-1. **Validation 1 (Mandatory Note):** `note` must not be empty. Backend rejects with `400 Bad Request` if missing.
-2. **Validation 2 (Watch State Control):** If `status === "Monitoring"`, `isTemporaryFix` MUST be `true`. Backend rejects with `400 Bad Request` if `isTemporaryFix` is not true.
-3. **Validation 3 (Handoff Reset):** If `status === "Pending_Verification"` (or `"Resolved"`), backend automatically sets `isTemporaryFix = false`.
+| Field Name | Type   | Description                                 | Required?                           |
+| :--------- | :----- | :------------------------------------------ | :---------------------------------- |
+| type       | string | "text" \| "voice" \| "image"                | Yes                                 |
+| line       | string | e.g. "Line 2"                               | Yes                                 |
+| shift      | string | e.g. "1st Shift"                            | Yes                                 |
+| content    | string | Text report description                     | Required if type="text"             |
+| file       | File   | Audio file (.wav/.mp3) or Image (.jpg/.png) | Required if type="voice" or "image" |
 
 ---
 
-## 🔍 5. Supervisor Verification Sign-off (`PATCH /api/v1/issues/:id/verify`) [NEW!]
+### 💻 Frontend React / Axios Upload Snippet:
 
-To prevent quality gaps on the shop floor, technicians cannot directly close a ticket. They set status to `"Pending_Verification"`. Supervisors/Admins perform floor audit and trigger sign-off:
+import axios from 'axios';
 
-- **Endpoint:** `PATCH /api/v1/issues/:id/verify`
-- **Authorization:** `SUPERVISOR`, `SUPER_ADMIN`, `ADMIN`
-- **Request Body (JSON):**
-  ```json
-  {
-    "approved": true, // true = Approve & Resolve, false = Reject & Re-open
-    "note": "Checked motor. Temperature is normal. Certified line for production." // Mandatory
-  }
-  ```
+// 1. Analyzing Voice Clip / Image OCR / Text
+export const analyzeIssueWithAI = async (params: {
+type: 'text' | 'voice' | 'image';
+line: string;
+shift: string;
+content?: string;
+file?: File;
+}) => {
+const token = localStorage.getItem('token');
+const formData = new FormData();
 
-### Scenario A: Supervisor Approves Fix (`approved: true`)
+formData.append('type', params.type);
+formData.append('line', params.line);
+formData.append('shift', params.shift);
 
-- **Backend Action:** Sets `status = "Resolved"`, records `verifiedBy` & `verificationNote`, appends `"resolution"` timeline log.
-- **Response (200 OK):**
-  ```json
-  {
-    "success": true,
-    "message": "Issue fix approved and resolved",
-    "data": {
-      "id": "issue-100",
-      "status": "Resolved",
-      "verifiedBy": "Supervisor Name",
-      "verificationNote": "Checked motor. Temperature is normal..."
-    }
-  }
-  ```
+if (params.content) {
+formData.append('content', params.content);
+}
+if (params.file) {
+formData.append('file', params.file); // Upload audio or image file
+}
 
-### Scenario B: Supervisor Rejects Fix (`approved: false`)
+const response = await axios.post(
+`${process.env.NEXT_PUBLIC_BASE_URL}/issues/analyze`,
+formData,
+{
+headers: {
+Authorization: `Bearer ${token}`,
+'Content-Type': 'multipart/form-data',
+},
+}
+);
 
-- **Backend Action:** Reverts `status = "In Progress"` (or `"Open"`), appends `"rejection"` timeline log detailing failure reasons.
-- **Response (200 OK):**
-  ```json
-  {
-    "success": true,
-    "message": "Issue fix rejected and re-opened",
-    "data": {
-      "id": "issue-100",
-      "status": "In Progress",
-      "rejectionNote": "Rejected: Motor heating issue still persists."
-    }
-  }
-  ```
+return response.data;
+};
 
 ---
 
-## 🤖 6. Two-Step AI Issue Creation Workflow
+### 📩 Live Gemini 2.5 Flash Response (200 OK):
 
-### Step 1: AI Analysis & Extraction (No DB Write)
+{
+"success": true,
+"statusCode": 200,
+"message": "AI analysis completed",
+"data": {
+"extractedText": "Conveyor belt Line 2 is making a loud grinding noise near motor housing...",
+"summary": "2 operational issues detected. 1 critical item requires immediate attention.",
+"detectedIssues": [
+{
+"title": "Line 2 stopped - critical motor housing failure",
+"priority": "P1"
+},
+{
+"title": "Material shortage - Line 2",
+"priority": "P2"
+}
+],
+"checklist": [
+"Maintenance to inspect motor & electrical connections (Line 2)",
+"Confirm material delivery ETA & check fluid levels"
+],
+"pendingQuestions": [
+"Was emergency stop triggered or automatic thermal trip?",
+"Has material refill arrived for Line 2?"
+]
+}
+}
 
-- **Endpoint:** `POST /api/v1/issues/analyze`
-- **Content-Type:** `multipart/form-data`
-- **Payload:**
-  - `type`: `"text"` | `"voice"` | `"image"`
-  - `content`: Raw text (if type="text")
-  - `file`: Audio WAV/MP3 or Photo JPG/PNG (if type="voice" or "image")
-  - `line`: `"Line 2"`
-  - `shift`: `"1st Shift"`
-- **Response (200 OK - Gemini 2.5 Flash Powered):**
+---
+
+## 💾 2. Step 2: Final Handoff Submission (POST /api/v1/issues)
+
+After the user reviews the AI preview from Step 1, the frontend sends the confirmed payload to be saved in the DB:
+
+- Route: POST /api/v1/issues
+- Headers: Content-Type: application/json, Authorization: Bearer <token>
+- Request Body:
   ```json
   {
-    "success": true,
-    "statusCode": 200,
-    "message": "AI analysis completed",
-    "data": {
-      "extractedText": "Conveyor belt Line 2 is making a loud grinding noise...",
-      "summary": "3 operational issues detected. 1 critical item requires immediate attention.",
-      "detectedIssues": [
-        { "title": "Line 2 stopped - motor failure", "priority": "P1" },
-        { "title": "Material shortage - Line 4", "priority": "P2" }
-      ],
-      "checklist": ["Maintenance to inspect motor (Line 2)"],
-      "pendingQuestions": ["Was motor replacement completed?"]
-    }
-  }
-  ```
-
-### Step 2: Final Handoff Submission (Saves to DB)
-
-- **Endpoint:** `POST /api/v1/issues`
-- **Payload:**
-  ```json
-  {
-    "content": "Conveyor belt Line 2 is making a loud grinding noise...",
-    "priority": "P1",
+    "content": "Conveyor belt Line 2 is making a loud grinding noise near motor housing...",
+    "priority": "P1", // "P1" | "P2" | "P3"
     "category": "Maintenance",
     "line": "Line 2",
     "shift": "1st Shift",
     "date": "2026-07-31",
     "aiAnalysis": {
-      "summary": "3 operational issues detected...",
-      "checklist": ["Maintenance to inspect motor (Line 2)"],
-      "pendingQuestions": ["Was motor replacement completed?"]
+      "summary": "2 operational issues detected. 1 critical item requires immediate attention.",
+      "checklist": [
+        "Maintenance to inspect motor & electrical connections (Line 2)"
+      ],
+      "pendingQuestions": [
+        "Was emergency stop triggered or automatic thermal trip?"
+      ]
     }
   }
   ```
 
 ---
 
-## 🏭 7. Plant Configuration & Staff Management APIs
+## 📊 3. Next Shift AI Summary (GET /api/v1/issues/ai-summary)
 
-### 7.1 Plant Lines
+Generates AI summaries tailored for the incoming shift depending on their role.
 
-- `GET /api/v1/lines`
-- `POST /api/v1/lines` -> `{ "name": "Line 5", "area": "Plant B" }`
-- `PATCH /api/v1/lines/:id/status` -> `{ "status": "Active" | "Inactive" }`
-- `DELETE /api/v1/lines/:id`
-
-### 7.2 Shifts
-
-- `GET /api/v1/shifts` -> Returns `[ { "id": "s1", "name": "1st Shift", "start": "06:00", "end": "14:00" } ]`
-- `POST /api/v1/shifts` -> `{ "name": "1st Shift", "start": "06:00", "end": "14:00" }`
-- `DELETE /api/v1/shifts/:id`
-
-### 7.3 Departments
-
-- `GET /api/v1/departments` -> Returns `[ { "id": "d1", "name": "Maintenance" } ]`
-- `POST /api/v1/departments` -> `{ "name": "Maintenance" }`
-- `DELETE /api/v1/departments/:id`
-
-### 7.4 Invite / Create Staff (Admin)
-
-- `POST /api/v1/users/create-user` (Sends invitation email with token)
-- **Payload:**
+- Route: GET /api/v1/issues/ai-summary?role=MAINTENANCE
+- Roles: OPERATOR | MAINTENANCE | ADMIN
+- Response Schema:
   ```json
   {
-    "name": "Alex Mercer",
-    "email": "alex@shyfty.com",
-    "role": "SUPERVISOR", // "SUPERVISOR" | "OPERATOR" | "MAINTENANCE"
-    "staffRole": "Maintenance",
-    "line": "Line 2",
-    "shift": "1st Shift"
+    "success": true,
+    "data": {
+      "summary": "Summary of critical risks, watches & repeat occurrences for incoming shift (MAINTENANCE view).",
+      "bullets": [
+        "Line 2: High priority alert - Conveyor belt motor heating. Shutdown risk high.",
+        "Line 2 Guide Rail: Under Watch/Monitoring status. Jammed 8 times this week."
+      ]
+    }
   }
   ```
 
-### 7.5 Setup Password (Invited User First Login)
+---
 
-- `POST /api/v1/auth/setup-password` -> `{ "token": "jwt-token-string", "password": "newSecurePassword123" }`
+## 📈 4. Surfaced Recurring Issues & Plant Analytics
+
+### 4.1 Surfaced Recurring Issues
+
+- Route: GET /api/v1/issues/recurring
+- Response: Returns P1 stoppage risks & repeat occurrences.
+
+### 4.2 Plant KPIs & Analytics Graphs
+
+- Route: GET /api/v1/issues/analytics
+- Response Schema:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "mttr": [
+        { "name": "Mon", "value": 45 },
+        { "name": "Tue", "value": 38 }
+      ],
+      "downtimeCauses": [
+        { "name": "Electrical", "value": 400, "color": "#D92D20" },
+        { "name": "Mechanical", "value": 280, "color": "#F79009" }
+      ],
+      "shiftPerformance": [
+        { "shift": "Shift 1", "issues": 12, "completion": 95 }
+      ],
+      "kpiMetrics": {
+        "avgMttr": "32m",
+        "avgResponseTime": "8.5m",
+        "repeatIssueRate": "14%",
+        "handoffCompletion": "91.4%"
+      }
+    }
+  }
+  ```
 
 ---
 
-## 💻 8. RTK Query Frontend Integration Code Snippet
+## 💻 5. Complete RTK Query Code for AI Endpoints
 
-```typescript
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-export const shyftyApi = createApi({
-  reducerPath: "shyftyApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000/api/v1",
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        headers.set("authorization", `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
-  endpoints: (builder) => ({
-    // 1. Fetch Issues with Role Scoping
-    getIssues: builder.query({
-      query: (params) => ({
-        url: "/issues",
-        params, // { status, priority, line, staffCategory, assignedUserId }
-      }),
-    }),
+export const aiIssuesApi = createApi({
+reducerPath: 'aiIssuesApi',
+baseQuery: fetchBaseQuery({
+baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5000/api/v1',
+prepareHeaders: (headers) => {
+const token = localStorage.getItem('token');
+if (token) headers.set('authorization', `Bearer ${token}`);
+return headers;
+},
+}),
+endpoints: (builder) => ({
+// 1. Analyze Input (Multipart FormData for Voice/Image/Text)
+analyzeIssue: builder.mutation({
+query: (formData) => ({
+url: '/issues/analyze',
+method: 'POST',
+body: formData, // Pass FormData directly
+}),
+}),
 
-    // 2. Fetch My Assigned Issues
-    getMyIssues: builder.query({
-      query: () => "/issues/my-issues",
-    }),
-
-    // 3. Triage / Assign Issue (Supervisor)
-    assignIssue: builder.mutation({
-      query: ({ id, ...body }) => ({
-        url: `/issues/${id}/assign`,
-        method: "PATCH",
+    // 2. Submit Final Issue
+    submitIssue: builder.mutation({
+      query: (body) => ({
+        url: '/issues',
+        method: 'POST',
         body,
       }),
     }),
 
-    // 4. Update Status (Technician)
-    updateStatus: builder.mutation({
-      query: ({ id, ...body }) => ({
-        url: `/issues/${id}/status-update`,
-        method: "PATCH",
-        body,
-      }),
+    // 3. Get Next Shift AI Summary
+    getNextShiftAiSummary: builder.query({
+      query: (role = 'OPERATOR') => `/issues/ai-summary?role=${role}`,
     }),
 
-    // 5. Verify Sign-off (Supervisor Approve/Reject) [NEW]
-    verifyIssueFix: builder.mutation({
-      query: ({ id, ...body }) => ({
-        url: `/issues/${id}/verify`,
-        method: "PATCH",
-        body, // { approved: true|false, note: "..." }
-      }),
+    // 4. Get Plant Analytics
+    getAnalytics: builder.query({
+      query: () => '/issues/analytics',
     }),
-  }),
+
+}),
 });
 
 export const {
-  useGetIssuesQuery,
-  useGetMyIssuesQuery,
-  useAssignIssueMutation,
-  useUpdateStatusMutation,
-  useVerifyIssueFixMutation,
-} = shyftyApi;
-```
+useAnalyzeIssueMutation,
+useSubmitIssueMutation,
+useGetNextShiftAiSummaryQuery,
+useGetAnalyticsQuery,
+} = aiIssuesApi;
