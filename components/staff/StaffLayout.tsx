@@ -12,9 +12,10 @@ interface StaffLayoutProps {
   category?: string;
   showBack?: boolean;
   backHref?: string;
+  onBack?: () => void;
 }
 
-export const StaffLayout = ({ children, category = "Maintenance", showBack, backHref }: StaffLayoutProps) => {
+export const StaffLayout = ({ children, category = "Maintenance", showBack, backHref, onBack }: StaffLayoutProps) => {
   const { user } = useCurrentUser();
 
   return (
@@ -24,9 +25,15 @@ export const StaffLayout = ({ children, category = "Maintenance", showBack, back
         <header className="px-6 py-4 flex h-[80px] items-center justify-between border-b border-gray-200 sticky top-0 bg-white z-50">
           {showBack ? (
             <div className="flex items-center gap-4">
-              <Link href={backHref || "/staff"} className="p-2 -ml-2 hover:bg-gray-50 rounded-full transition-colors">
-                <ChevronLeft className="w-6 h-6 text-gray-700" />
-              </Link>
+              {onBack ? (
+                <button onClick={onBack} className="p-2 -ml-2 hover:bg-gray-50 rounded-full transition-colors cursor-pointer">
+                  <ChevronLeft className="w-6 h-6 text-gray-700" />
+                </button>
+              ) : (
+                <Link href={backHref || "/staff"} className="p-2 -ml-2 hover:bg-gray-50 rounded-full transition-colors">
+                  <ChevronLeft className="w-6 h-6 text-gray-700" />
+                </Link>
+              )}
               <h2 className="text-xl font-bold text-gray-900">Issue Details</h2>
             </div>
           ) : (

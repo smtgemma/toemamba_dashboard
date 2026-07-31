@@ -17,8 +17,9 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useGetIssueByIdQuery, useUpdateIssueStatusMutation } from "@/lib/redux/features/issues/issuesApi";
 
-export default function StaffIssueDetailsPage({ params }: { params: { id: string } }) {
-  const { data: issueData, isLoading: isFetching } = useGetIssueByIdQuery(params.id);
+export default function StaffIssueDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params);
+  const { data: issueData, isLoading: isFetching } = useGetIssueByIdQuery(id);
   const [updateIssueStatus, { isLoading: isUpdating }] = useUpdateIssueStatusMutation();
 
   const issue = issueData?.data || issueData || null;
@@ -29,7 +30,8 @@ export default function StaffIssueDetailsPage({ params }: { params: { id: string
   // Sync state once data loads
   useEffect(() => {
     if (issue) {
-      setStatus(issue.status);
+      const uiStatus = (issue.status === "Pending_Verification" || issue.status === "Pending Audit") ? "Resolved" : issue.status;
+      setStatus(uiStatus);
     }
   }, [issue]);
 
@@ -40,11 +42,12 @@ export default function StaffIssueDetailsPage({ params }: { params: { id: string
     }
 
     try {
+      const apiStatus = status === "Resolved" ? "Pending_Verification" : status;
       await updateIssueStatus({
-        id: params.id,
-        status,
+        id,
+        status: apiStatus,
         note,
-        isTemporaryFix: status === "Monitoring"
+        isTemporaryFix: apiStatus === "Monitoring"
       }).unwrap();
       
       toast.success(`Handoff log saved! State set to ${status}.`);
@@ -212,51 +215,72 @@ export default function StaffIssueDetailsPage({ params }: { params: { id: string
         </div>
 
         {/* Maintenance Action Section */}
-        <div className="space-y-4 pt-2">
-          <h4 className="text-xs font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
-            <Wrench className="w-4 h-4 text-gray-500" />
-            Log Handoff Note
-          </h4>
-          
-          <div className="space-y-2">
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="Provide a detailed log update. (e.g. Cleared guide rails transition jams, verified Line 2 operational continuity.)"
-              className="w-full h-28 bg-white border border-gray-200 rounded-2xl p-4 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#101828]/10 placeholder:text-gray-400 resize-none"
-            />
+        {issue.status === "Pending_Verification" || issue.status === "Pending Audit" ? (
+          <div className="bg-purple-50 border border-purple-100 rounded-3xl p-6 text-center space-y-3 shadow-sm animate-in fade-in duration-300">
+            <CheckCircle className="w-10 h-10 text-purple-600 mx-auto" />
+            <h4 className="text-sm font-bold text-purple-900">Fix Pending Verification</h4>
+            <p className="text-xs text-purple-600 max-w-md mx-auto leading-relaxed">
+              Your maintenance work has been submitted for review. Waiting for a Supervisor to audit the fix and sign off on this ticket.
+            </p>
           </div>
-        </div>
-
-        {/* Status Selection */}
-        <div className="space-y-3">
-          <label className="text-xs font-black text-gray-900 uppercase tracking-widest">Update State</label>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {["Open", "Monitoring", "In Progress", "Resolved"].map((s) => (
-              <button
-                key={s}
-                onClick={() => setStatus(s)}
-                className={cn(
-                  "py-2.5 rounded-xl text-xs font-bold border transition-all h-10",
-                  status.toLowerCase() === s.toLowerCase()
-                    ? "bg-[#101828] text-white border-[#101828] shadow-sm" 
-                    : "bg-white text-gray-500 border-gray-100 hover:bg-gray-50"
-                )}
-              >
-                {s}
-              </button>
-            ))}
+        ) : issue.status === "Resolved" ? (
+          <div className="bg-emerald-50 border border-emerald-100 rounded-3xl p-6 text-center space-y-3 shadow-sm animate-in fade-in duration-300">
+            <CheckCircle className="w-10 h-10 text-emerald-600 mx-auto" />
+            <h4 className="text-sm font-bold text-emerald-900">Issue Resolved</h4>
+            <p className="text-xs text-emerald-600 max-w-md mx-auto leading-relaxed">
+              This issue has been successfully resolved, verified, and signed off by the Supervisor.
+            </p>
           </div>
-        </div>
+        ) : (
+          <>
+            <div className="space-y-4 pt-2">
+              <h4 className="text-xs font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
+                <Wrench className="w-4 h-4 text-gray-500" />
+                Log Handoff Note
+              </h4>
+              
+              <div className="space-y-2">
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Provide a detailed log update. (e.g. Cleared guide rails transition jams, verified Line 2 operational continuity.)"
+                  className="w-full h-28 bg-white border border-gray-200 rounded-2xl p-4 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#101828]/10 placeholder:text-gray-400 resize-none"
+                />
+              </div>
+            </div>
 
-        <button 
-          onClick={handleAction}
-          disabled={isUpdating}
-          className="w-full bg-[#101828] text-white py-4 rounded-2xl font-bold shadow-lg shadow-gray-100 mt-4 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50"
-        >
-          {isUpdating && <Loader2 className="w-4 h-4 animate-spin" />}
-          Confirm State Change & Note
-        </button>
+            {/* Status Selection */}
+            <div className="space-y-3">
+              <label className="text-xs font-black text-gray-900 uppercase tracking-widest">Update State</label>
+              <div className="grid grid-cols-3 gap-2">
+                {["In Progress", "Monitoring", "Resolved"].map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setStatus(s)}
+                    className={cn(
+                      "py-2.5 rounded-xl text-xs font-bold border transition-all h-10 cursor-pointer",
+                      status === s
+                        ? "bg-[#101828] text-white border-[#101828] shadow-sm font-black" 
+                        : "bg-white text-gray-500 border-gray-200 hover:bg-gray-50"
+                    )}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button 
+              onClick={handleAction}
+              disabled={isUpdating}
+              className="w-full bg-[#101828] text-white py-4 rounded-2xl font-bold shadow-lg shadow-gray-100 mt-4 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50 cursor-pointer"
+            >
+              {isUpdating && <Loader2 className="w-4 h-4 animate-spin" />}
+              Confirm State Change & Note
+            </button>
+          </>
+        )}
       </div>
     </StaffLayout>
   );

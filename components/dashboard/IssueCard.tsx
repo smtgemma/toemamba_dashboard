@@ -188,7 +188,7 @@ export const IssueCard = ({
 
             {isEditing && showCategoryDropdown && (
               <div className="absolute bottom-full left-0 mb-1 w-48 bg-white border border-gray-100 rounded-lg shadow-lg z-50 py-1">
-                {categoriesList.map((cat) => (
+                {categoriesList.map((cat: string) => (
                   <button
                     key={cat}
                     onClick={() => {
@@ -218,7 +218,8 @@ export const IssueCard = ({
               <div className="hidden sm:block h-4 w-[1px] bg-gray-200" />
               <span className="inline-flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-2.5 py-0.5 font-bold">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                {assignedUser.fullName}
+                <span className="text-gray-400 font-medium mr-0.5">Assigned to:</span>
+                <span>{assignedUser.fullName}</span>
                 {assignedStaffCategory && (
                   <span className="text-[10px] text-emerald-600/80 font-medium">({assignedStaffCategory})</span>
                 )}
@@ -230,7 +231,8 @@ export const IssueCard = ({
               <div className="hidden sm:block h-4 w-[1px] bg-gray-200" />
               <span className="inline-flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-2.5 py-0.5 font-bold">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                Dept: {assignedStaffCategory}
+                <span className="text-gray-400 font-medium mr-0.5">Assigned to:</span>
+                <span>Dept ({assignedStaffCategory})</span>
               </span>
             </>
           )}

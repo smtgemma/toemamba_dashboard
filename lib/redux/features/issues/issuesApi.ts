@@ -12,6 +12,15 @@ const issuesApi = baseApi.injectEndpoints({
       providesTags: [tagTypes.issue],
     }),
 
+    getMyIssues: builder.query({
+      query: (params) => ({
+        url: "/issues/my-issues",
+        method: "GET",
+        params,
+      }),
+      providesTags: [tagTypes.issue],
+    }),
+
     getIssueById: builder.query({
       query: (id) => ({
         url: `/issues/${id}`,
@@ -103,6 +112,7 @@ const issuesApi = baseApi.injectEndpoints({
 
 export const {
   useGetIssuesQuery,
+  useGetMyIssuesQuery,
   useGetIssueByIdQuery,
   useSubmitIssueMutation,
   useUpdateIssueMutation,

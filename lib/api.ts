@@ -1,4 +1,4 @@
-import { getToken } from "./getToken";
+import Cookies from "js-cookie";
 
 type ApiRequestOptions = {
     url: string;
@@ -17,7 +17,7 @@ export async function api({
     authorize = false,
     client = false,
 }: ApiRequestOptions) {
-    const token = authorize ? getToken() : null;
+    const token = authorize ? Cookies.get("token") : null;
 
     // const rootToken = client ? getToken() : await getServerToken();
     // const token = authorize ? rootToken : null;

@@ -20,7 +20,7 @@ import Link from "next/link";
 import AppPagination from "@/components/shared/Pagination";
 import { PRIORITIES } from "@/constants/dummy";
 import { 
-  useGetIssuesQuery, 
+  useGetMyIssuesQuery, 
   useGetAiSummaryQuery, 
   useGetRecurringIssuesQuery 
 } from "@/lib/redux/features/issues/issuesApi";
@@ -57,7 +57,7 @@ export default function StaffHomePage() {
   const STATUS_FLOW = ["Open", "Monitoring", "In Progress", "Resolved"];
 
   // Fetch live operational issues
-  const { data: issuesData, isLoading: isIssuesLoading } = useGetIssuesQuery({
+  const { data: issuesData, isLoading: isIssuesLoading } = useGetMyIssuesQuery({
     status: activeStatus,
     priority: priorityFilter
   });

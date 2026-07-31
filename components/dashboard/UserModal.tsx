@@ -144,7 +144,7 @@ export const UserModal = ({ isOpen, onClose, onSubmit, initialData, mode, isLoad
                   className="w-full px-4 py-3 bg-[#F9FAFB] border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 appearance-none text-sm disabled:opacity-70"
                 >
                   <option value="">Select category</option>
-                  {categoriesList.map((cat) => (
+                  {categoriesList.map((cat: string) => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
