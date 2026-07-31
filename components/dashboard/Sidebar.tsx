@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   BarChart3,
@@ -14,6 +14,8 @@ import {
 
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import Cookies from "js-cookie";
+import { toast } from "sonner";
 
 const navItems = [
   {
@@ -45,6 +47,7 @@ const navItems = [
 
 export const Sidebar = () => {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <div className="flex h-screen w-64 flex-col bg-white border-r border-gray-100 p-6">
@@ -57,7 +60,6 @@ export const Sidebar = () => {
             height={150}
             className="object-contain w-[150px]"
           />
-
         </Link>
       </div>
 
@@ -72,13 +74,15 @@ export const Sidebar = () => {
                 "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
                 isActive
                   ? "bg-[#F3F4F6] text-black font-semibold shadow-sm"
-                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-900",
               )}
             >
               <item.icon
                 className={cn(
                   "w-5 h-5 transition-colors",
-                  isActive ? "text-black" : "text-gray-400 group-hover:text-gray-600"
+                  isActive
+                    ? "text-black"
+                    : "text-gray-400 group-hover:text-gray-600",
                 )}
               />
               <span className="text-sm font-medium">{item.label}</span>
@@ -89,9 +93,11 @@ export const Sidebar = () => {
 
       <div className="mt-auto border-t border-gray-100 pt-6">
         <button
-          className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-[#F04438] bg-[#FEF3F2] hover:bg-[#FEE4E2] transition-all duration-200"
+          className="flex cursor-pointer items-center gap-3 w-full px-4 py-3 rounded-xl text-[#F04438] bg-[#FEF3F2] hover:bg-[#FEE4E2] transition-all duration-200"
           onClick={() => {
-            // Handle logout
+            Cookies.remove("token");
+            toast.success("Logged out successfully");
+            router.push("/signin");
           }}
         >
           <LogOut className="w-5 h-5" />

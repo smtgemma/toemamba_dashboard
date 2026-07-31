@@ -1,13 +1,6 @@
 "use client";
 
-
-import {
-  ChevronDown,
-  Menu,
-  Settings,
-  User,
-  X
-} from "lucide-react";
+import { ChevronDown, Menu, Settings, User, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -32,22 +25,11 @@ export function Navbar() {
   const isAdmin = false;
   const isLoading = false;
 
-
-
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [signupModalOpen, setSignupModalOpen] = useState(false);
   const pathname = usePathname();
 
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "About", href: "/about" },
-    { name: "Pricing", href: "/pricing" },
-    { name: "Contact", href: "/contact" },
-
-  ];
-
-
+  const navLinks = [{ name: "Home", href: "/" }];
 
   // const handleLogOut = async () => {
   //   try {
@@ -82,8 +64,11 @@ export function Navbar() {
                 <a
                   key={link.name}
                   href={link.href}
-                  className={`text-[17px] text-gray-900 hover:text-gradient transition-colors ${pathname === link.href ? "font-semibold text-purple-700" : ""
-                    }`}
+                  className={`text-[17px] text-gray-900 hover:text-gradient transition-colors ${
+                    pathname === link.href
+                      ? "font-semibold text-purple-700"
+                      : ""
+                  }`}
                 >
                   {link.name}
                 </a>
@@ -94,9 +79,6 @@ export function Navbar() {
             <div className="hidden lg:flex items-center gap-3">
               {isAuthenticated && user ? (
                 <div className="flex items-center gap-3">
-
-
-
                   <div className="relative ">
                     <button
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -104,7 +86,6 @@ export function Navbar() {
                     >
                       <img
                         src={
-
                           "https://img.icons8.com/nolan/1200/user-default.jpg"
                         }
                         // src={
@@ -116,8 +97,9 @@ export function Navbar() {
                         className="w-10 h-10 rounded-full border-2 border-gray-200"
                       />
                       <ChevronDown
-                        className={`w-4 h-4 text-gray-600 transition-transform ${isDropdownOpen ? "rotate-180" : ""
-                          }`}
+                        className={`w-4 h-4 text-gray-600 transition-transform ${
+                          isDropdownOpen ? "rotate-180" : ""
+                        }`}
                       />
                     </button>
 
@@ -163,7 +145,6 @@ export function Navbar() {
                 </div>
               ) : (
                 <>
-
                   <Link href="/signin">
                     <button className="px-6 py-2.5  rounded-lg hover:bg-gray-100 transition-colors cursor-pointer btn-gradient">
                       Get Started
@@ -176,7 +157,6 @@ export function Navbar() {
             {/* Mobile Menu Button */}
 
             <div className="lg:hidden flex items-center gap-3">
-
               <button
                 className="lg:hidden p-2 cursor-pointer"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -189,7 +169,6 @@ export function Navbar() {
                 )}
               </button>
             </div>
-
           </div>
         </div>
 
@@ -233,10 +212,7 @@ export function Navbar() {
                   </>
                 ) : (
                   <>
-                    <button
-
-                      className="w-full px-4 py-2  rounded-lg transition-colors cursor-pointer btn-gradient"
-                    >
+                    <button className="w-full px-4 py-2  rounded-lg transition-colors cursor-pointer btn-gradient">
                       Sign Up
                     </button>
                     <button className="w-full px-4 py-2 bg-transparent  text-gray-900 rounded-lg hover:bg-gray-100 transition-colors border">
@@ -249,8 +225,6 @@ export function Navbar() {
           </div>
         )}
       </nav>
-
-
     </>
   );
 }

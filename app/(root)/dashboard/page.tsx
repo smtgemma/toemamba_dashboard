@@ -42,11 +42,10 @@ export default function DashboardPage() {
     return issuesList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [issuesList, currentPage]);
 
-  const aiSummary = aiSummaryData?.data?.summary || "Critical operational continuity risks & carryover items details:";
+  const aiSummary = aiSummaryData?.data?.summary || "No critical operational continuity risks or carryover items have been analyzed for the current shift.";
   const aiBullets = aiSummaryData?.data?.bullets || [
-    "Line 2 Electrical Panel: Escalating intermittent codes. High risk of stoppage.",
-    "Conveyor 2 Guide Rail: Under Watch status. Jams reported across shifts.",
-    "Line 2 Steam Line: Critical pressure drop detected. Team investigating feed."
+    "Verify active shift handoffs to see dynamic AI-generated risk reports.",
+    "Review reported machine status logs and maintenance tickets in the list below."
   ];
 
   // Reset to first page when filters change

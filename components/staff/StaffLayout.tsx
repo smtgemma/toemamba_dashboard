@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCurrentUser } from "@/lib/getCurrentUser";
 
 interface StaffLayoutProps {
   children: React.ReactNode;
@@ -14,6 +15,8 @@ interface StaffLayoutProps {
 }
 
 export const StaffLayout = ({ children, category = "Maintenance", showBack, backHref }: StaffLayoutProps) => {
+  const { user } = useCurrentUser();
+
   return (
     <div className="min-h-screen bg-white md:bg-[#F9FAFB] flex justify-center">
       <div className="w-full max-w-4xl bg-white min-h-screen shadow-sm relative overflow-x-hidden">
@@ -38,8 +41,14 @@ export const StaffLayout = ({ children, category = "Maintenance", showBack, back
                 </div>
               </div>
               <Link href={category === "Operator" ? "/operator/profile" : "/staff/profile"}>
-                <div className="w-10 h-10 rounded-full bg-gray-200 border-2 border-white shadow-sm overflow-hidden">
-                  <Image src="/avatar-placeholder.png" alt="User" width={40} height={40} />
+                <div className="w-10 h-10 rounded-full bg-gray-200 border-2 border-white shadow-sm overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
+                  <Image 
+                    src={user?.profilePic || "/image.png"} 
+                    alt="User" 
+                    width={40} 
+                    height={40} 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </Link>
             </>

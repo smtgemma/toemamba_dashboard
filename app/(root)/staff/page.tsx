@@ -83,10 +83,10 @@ export default function StaffHomePage() {
     return issuesList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [issuesList, currentPage]);
 
-  const aiSummary = aiSummaryData?.data?.summary || "No active equipment risks reported for this shift. Review carryover tasks.";
+  const aiSummary = aiSummaryData?.data?.summary || "No active equipment risks or carryover instructions analyzed for this shift.";
   const aiBullets = aiSummaryData?.data?.bullets || [
-    "Verify Line 2 guide rail calibrator is properly tensioned.",
-    "Monitor boiler house pressure drops."
+    "Verify active shift handoffs to see dynamic AI-generated risk reports.",
+    "Review reported machine status logs and maintenance tickets in the list below."
   ];
 
   return (
