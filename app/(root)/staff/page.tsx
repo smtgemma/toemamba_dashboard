@@ -56,25 +56,38 @@ export default function StaffHomePage() {
   // Status list matching MVP status flow
   const STATUS_FLOW = ["Open", "Monitoring", "In Progress", "Resolved"];
 
-  // Fetch live operational issues
-  const { data: issuesData, isLoading: isIssuesLoading } = useGetMyIssuesQuery({
-    status: activeStatus,
-    priority: priorityFilter
-  });
+  // Fetch live operational issues (fetch all assigned issues, filter client-side for tab consistency)
+  const { data: issuesData, isLoading: isIssuesLoading } = useGetMyIssuesQuery({});
   const { data: aiSummaryData } = useGetAiSummaryQuery({ role: "MAINTENANCE" });
   const { data: recurringData } = useGetRecurringIssuesQuery({});
 
   const issuesList = useMemo(() => {
-    return Array.isArray(issuesData) ? issuesData : (issuesData?.data || []);
-  }, [issuesData]);
+    const rawList = Array.isArray(issuesData) ? issuesData : (issuesData?.data || []);
+    
+    return rawList.filter((issue: any) => {
+      // 1. Filter by Priority
+      if (priorityFilter && issue.priority !== priorityFilter) {
+        return false;
+      }
+      
+      // 2. Filter by Active Tab
+      const statusLower = (issue.status || "").toLowerCase();
+      if (activeStatus === "Resolved") {
+        return statusLower === "resolved" || statusLower === "pending_verification" || statusLower === "pending audit";
+      } else {
+        return statusLower === activeStatus.toLowerCase();
+      }
+    });
+  }, [issuesData, activeStatus, priorityFilter]);
 
   const recurringProblems = useMemo(() => {
     return Array.isArray(recurringData) ? recurringData : (recurringData?.data || []);
   }, [recurringData]);
 
   const activeCarryoverCount = useMemo(() => {
-    return issuesList.filter((i: any) => i.status === "Open" || i.status === "In Progress").length;
-  }, [issuesList]);
+    const rawList = Array.isArray(issuesData) ? issuesData : (issuesData?.data || []);
+    return rawList.filter((i: any) => i.status === "Open" || i.status === "In Progress").length;
+  }, [issuesData]);
 
   // Pagination
   const totalPages = Math.ceil(issuesList.length / ITEMS_PER_PAGE);
