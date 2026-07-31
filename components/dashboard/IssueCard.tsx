@@ -19,6 +19,8 @@ import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
 import { AssignIssueModal } from "./AssignIssueModal";
 import { useGetDepartmentsQuery } from "@/lib/redux/features/dashboard/dashboardApi";
 import { CATEGORIES } from "@/constants/dummy";
+import { useGetMeQuery } from "@/lib/redux/features/auth/authApi";
+import { VerifyIssueModal } from "./VerifyIssueModal";
 
 interface IssueCardProps {
   id?: string;
@@ -33,6 +35,12 @@ interface IssueCardProps {
   isRecurring?: boolean;
   recurrenceText?: string;
   isEscalating?: boolean;
+  assignedUser?: {
+    id: string;
+    fullName: string;
+    email: string;
+  } | null;
+  assignedStaffCategory?: string | null;
 }
 
 const priorityConfig = {
@@ -61,10 +69,13 @@ export const IssueCard = ({
   isRecurring = false,
   recurrenceText = "",
   isEscalating = false,
+  assignedUser,
+  assignedStaffCategory
 }: IssueCardProps) => {
   const [isEditing, setIsEditing] = useState(isNew);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(initialCategory);
   const [textContent, setTextContent] = useState(content);
@@ -72,6 +83,10 @@ export const IssueCard = ({
   const { data: deptsData } = useGetDepartmentsQuery({});
   const deptsList = Array.isArray(deptsData) ? deptsData : (deptsData?.data || []);
   const categoriesList = deptsList.length > 0 ? deptsList.map((d: any) => d.name) : CATEGORIES;
+
+  const { data: meData } = useGetMeQuery({});
+  const userRole = meData?.data?.role;
+  const isSupervisor = userRole === "SUPERVISOR" || userRole === "SUPER_ADMIN" || userRole === "ADMIN";
 
   const CategoryIcon = categoryIcons[currentCategory] || Wrench;
 
@@ -122,9 +137,10 @@ export const IssueCard = ({
             status === "Open" ? "border-[#FDA29B] text-[#D92D20] bg-[#FEF3F2]" :
             status === "Monitoring" ? "border-[#FEDF89] text-[#B54708] bg-[#FFFAEB]" :
             status === "In Progress" ? "border-[#84CAFF] text-[#175CD3] bg-[#EFF8FF]" :
+            (status === "Pending_Verification" || status === "Pending Audit") ? "border-[#D6BBFB] text-[#6941C6] bg-[#F9F5FF]" :
             "border-[#ABEFC6] text-[#067647] bg-[#ECFDF3]"
           )}>
-            {status}
+            {status.replace("_", " ")}
           </span>
         </div>
       </div>
@@ -196,19 +212,41 @@ export const IssueCard = ({
           <div className="hidden sm:block h-4 w-[1px] bg-gray-200" />
 
           <span className="text-xs text-gray-400 font-semibold">{carryoverAging}</span>
+
+          {assignedUser && (
+            <>
+              <div className="hidden sm:block h-4 w-[1px] bg-gray-200" />
+              <span className="inline-flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-2.5 py-0.5 font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                {assignedUser.fullName}
+                {assignedStaffCategory && (
+                  <span className="text-[10px] text-emerald-600/80 font-medium">({assignedStaffCategory})</span>
+                )}
+              </span>
+            </>
+          )}
+          {!assignedUser && assignedStaffCategory && (
+            <>
+              <div className="hidden sm:block h-4 w-[1px] bg-gray-200" />
+              <span className="inline-flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-2.5 py-0.5 font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                Dept: {assignedStaffCategory}
+              </span>
+            </>
+          )}
         </div>
 
         {isEditing ? (
           <div className="flex flex-col sm:flex-row items-center gap-3">
             <button 
               onClick={handleCancel}
-              className="w-full sm:w-auto px-5 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
+              className="w-full sm:w-auto px-5 py-2 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button 
               onClick={() => setIsEditing(false)}
-              className="w-full sm:w-auto px-5 py-2 text-xs font-bold text-white bg-[#101828] rounded-xl hover:bg-black transition-all"
+              className="w-full sm:w-auto px-5 py-2 text-xs font-bold text-white bg-[#101828] rounded-xl hover:bg-black transition-all cursor-pointer"
             >
               Save and Confirm
             </button>
@@ -218,9 +256,17 @@ export const IssueCard = ({
             {status === "Open" && (
               <button 
                 onClick={() => setIsAssignModalOpen(true)}
-                className="px-4 py-2 bg-[#101828] text-white hover:bg-gray-800 text-xs font-bold rounded-xl shadow-sm transition-all"
+                className="px-4 py-2 bg-[#101828] text-white hover:bg-gray-800 text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer"
               >
-                Assign Staff
+                {assignedUser || assignedStaffCategory ? "Reassign" : "Assign Staff"}
+              </button>
+            )}
+            {isSupervisor && (status === "Pending_Verification" || status === "Pending Audit") && (
+              <button 
+                onClick={() => setIsVerifyModalOpen(true)}
+                className="px-4 py-2 bg-[#7F56D9] hover:bg-[#6941C6] text-white text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer animate-pulse"
+              >
+                Verify Resolution
               </button>
             )}
             <span className="text-xs text-gray-300 font-semibold">{date}</span>
@@ -239,6 +285,12 @@ export const IssueCard = ({
         onClose={() => setIsAssignModalOpen(false)}
         issueId={id || ""}
         currentCategory={currentCategory}
+      />
+
+      <VerifyIssueModal
+        isOpen={isVerifyModalOpen}
+        onClose={() => setIsVerifyModalOpen(false)}
+        issueId={id || ""}
       />
     </div>
   );

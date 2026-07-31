@@ -82,6 +82,15 @@ const issuesApi = baseApi.injectEndpoints({
       invalidatesTags: [tagTypes.issue],
     }),
 
+    verifyIssue: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/issues/${id}/verify`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.issue],
+    }),
+
     getAnalytics: builder.query({
       query: () => ({
         url: "/issues/analytics",
@@ -102,5 +111,6 @@ export const {
   useAnalyzeIssueMutation,
   useAssignIssueMutation,
   useUpdateIssueStatusMutation,
+  useVerifyIssueMutation,
   useGetAnalyticsQuery,
 } = issuesApi;
