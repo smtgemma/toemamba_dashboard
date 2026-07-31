@@ -9,7 +9,8 @@ export function middleware(request: NextRequest) {
   const isAuthPage =
     pathname.startsWith("/signin") ||
     pathname.startsWith("/reset-password") ||
-    pathname.startsWith("/verify-otp");
+    pathname.startsWith("/verify-otp") ||
+    pathname.startsWith("/setup-password");
 
   // Define protected paths
   const isProtectedRoute =
@@ -108,5 +109,6 @@ export const config = {
     "/signin",
     "/reset-password",
     "/verify-otp",
+    "/setup-password",
   ],
 };

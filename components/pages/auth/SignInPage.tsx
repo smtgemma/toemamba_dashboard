@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useLoginMutation } from "@/lib/redux/features/auth/authApi";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 
 // Zod schema for form validation
 const formSchema = z.object({
@@ -30,6 +31,7 @@ export default function SignIn() {
 
     const [login] = useLoginMutation()
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const router = useRouter()
 
     const {
@@ -151,15 +153,24 @@ export default function SignIn() {
                                 <label className=" text-base font-medium text-gray-900 dark:text-gray-200">
                                     Password
                                 </label>
-                                <input
-                                    {...register("password")}
-                                    type="password"
-                                    className={`mt-1 w-full rounded-xl border px-4 py-3 outline-none transition-colors focus:border-sky-400 focus:ring-1 focus:ring-sky-400 dark:bg-zinc-900 dark:text-white ${errors.password
-                                        ? "border-red-500 dark:border-red-500"
-                                        : "border-gray-200 dark:border-zinc-800"
-                                        }`}
-                                    placeholder="Please enter your password"
-                                />
+                                <div className="relative">
+                                    <input
+                                        {...register("password")}
+                                        type={showPassword ? "text" : "password"}
+                                        className={`mt-1 w-full rounded-xl border px-4 py-3 outline-none transition-colors focus:border-sky-400 focus:ring-1 focus:ring-sky-400 dark:bg-zinc-900 dark:text-white pr-10 ${errors.password
+                                            ? "border-red-500 dark:border-red-500"
+                                            : "border-gray-200 dark:border-zinc-800"
+                                            }`}
+                                        placeholder="Please enter your password"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
+                                </div>
                                 {errors.password && (
                                     <p className="text-xs text-red-500">{errors.password.message}</p>
                                 )}

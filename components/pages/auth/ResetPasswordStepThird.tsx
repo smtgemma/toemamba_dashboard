@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, ChangeEvent, FormEvent } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 interface ResetPasswordStepThirdProps {
     onSubmit: (formData: {
@@ -24,6 +25,9 @@ export default function ResetPasswordStepThird({
         confirmPassword: "",
     });
 
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
@@ -43,7 +47,7 @@ export default function ResetPasswordStepThird({
                 <Link href={'/'}>
                     <Image
                         src="/new-logo.png"
-                        alt="PeptideHelp"
+                        alt="Logo"
                         width={240}
                         height={70}
                         className="object-contain w-[200px]"
@@ -64,6 +68,7 @@ export default function ResetPasswordStepThird({
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="w-full space-y-3">
+                {/* New Password */}
                 <div className="space-y-2">
                     <label
                         htmlFor="newPassword"
@@ -71,18 +76,28 @@ export default function ResetPasswordStepThird({
                     >
                         New Password
                     </label>
-                    <input
-                        id="newPassword"
-                        type="password"
-                        name="newPassword"
-                        value={formData.newPassword}
-                        onChange={handleChange}
-                        placeholder="Enter new password"
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none transition-colors focus:border-sky-400 focus:ring-1 focus:ring-sky-400 dark:bg-zinc-900 dark:border-zinc-800 dark:text-white"
-                        required
-                    />
+                    <div className="relative">
+                        <input
+                            id="newPassword"
+                            type={showNewPassword ? "text" : "password"}
+                            name="newPassword"
+                            value={formData.newPassword}
+                            onChange={handleChange}
+                            placeholder="Enter new password"
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none transition-colors focus:border-sky-400 focus:ring-1 focus:ring-sky-400 dark:bg-zinc-900 dark:border-zinc-800 dark:text-white pr-10 text-sm"
+                            required
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                    </div>
                 </div>
 
+                {/* Confirm Password */}
                 <div className="space-y-2">
                     <label
                         htmlFor="confirmPassword"
@@ -90,16 +105,25 @@ export default function ResetPasswordStepThird({
                     >
                         Confirm New Password
                     </label>
-                    <input
-                        id="confirmPassword"
-                        type="password"
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        placeholder="Confirm new password"
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none transition-colors focus:border-sky-400 focus:ring-1 focus:ring-sky-400 dark:bg-zinc-900 dark:border-zinc-800 dark:text-white"
-                        required
-                    />
+                    <div className="relative">
+                        <input
+                            id="confirmPassword"
+                            type={showConfirmPassword ? "text" : "password"}
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            placeholder="Confirm new password"
+                            className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none transition-colors focus:border-sky-400 focus:ring-1 focus:ring-sky-400 dark:bg-zinc-900 dark:border-zinc-800 dark:text-white pr-10 text-sm"
+                            required
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                    </div>
                 </div>
 
                 <Button
