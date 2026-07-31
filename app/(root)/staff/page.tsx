@@ -167,13 +167,13 @@ export default function StaffHomePage() {
           </div>
 
           {/* Filters Section */}
-          <div className="flex items-center gap-2 pb-2 overflow-x-auto no-scrollbar">
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-2">
             {/* Priority Button */}
             <div className="relative shrink-0">
               <button
                 onClick={() => setShowPriorityDropdown(!showPriorityDropdown)}
                 className={cn(
-                  "px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all h-9 bg-white text-gray-500 border-gray-100",
+                  "px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all h-9 bg-white text-gray-500 border-gray-100 cursor-pointer",
                   priorityFilter && "bg-[#101828] text-white border-[#101828]"
                 )}
               >
@@ -182,16 +182,18 @@ export default function StaffHomePage() {
               </button>
 
               {showPriorityDropdown && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/25 backdrop-blur-sm md:absolute md:inset-auto md:top-full md:left-0 md:mt-2 md:block">
-                  <div className="fixed inset-0 md:hidden" onClick={() => setShowPriorityDropdown(false)} />
-                  <div className="w-full max-w-[280px] bg-white border border-gray-100 rounded-2xl shadow-2xl z-[70] overflow-hidden py-1 md:w-36 md:rounded-xl">
+                <>
+                  {/* Backdrop overlay for click-away */}
+                  <div className="fixed inset-0 z-40" onClick={() => setShowPriorityDropdown(false)} />
+                  
+                  <div className="absolute top-full left-0 mt-2 w-36 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden py-1">
                     <button
                       onClick={() => {
                         setPriorityFilter("");
                         setShowPriorityDropdown(false);
                         setCurrentPage(1);
                       }}
-                      className="w-full text-left px-5 py-3 text-xs font-bold text-gray-700 hover:bg-gray-50"
+                      className="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 border-b border-gray-50 cursor-pointer"
                     >
                       All Priorities
                     </button>
@@ -203,18 +205,18 @@ export default function StaffHomePage() {
                           setShowPriorityDropdown(false);
                           setCurrentPage(1);
                         }}
-                        className="w-full text-left px-5 py-3 text-xs font-bold text-gray-700 hover:bg-gray-50 border-t border-gray-50"
+                        className="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 border-b border-gray-50 last:border-b-0 cursor-pointer"
                       >
                         Priority {p}
                       </button>
                     ))}
                   </div>
-                </div>
+                </>
               )}
             </div>
 
             {/* Status Tabs */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar max-w-full">
               {STATUS_FLOW.map((status) => (
                 <button
                   key={status}
@@ -223,7 +225,7 @@ export default function StaffHomePage() {
                     setCurrentPage(1);
                   }}
                   className={cn(
-                    "px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border shrink-0 h-9",
+                    "px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border shrink-0 h-9 cursor-pointer",
                     activeStatus.toLowerCase() === status.toLowerCase()
                       ? "bg-[#101828] text-white border-[#101828]"
                       : "bg-white text-gray-500 border-gray-100"
@@ -306,38 +308,7 @@ export default function StaffHomePage() {
           )}
         </div>
 
-        {/* SHIFT TIMELINE LOG */}
-        <div className="space-y-4">
-          <h3 className="text-xs font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
-            <History className="w-4 h-4 text-gray-500" />
-            Shift timeline / issue log
-          </h3>
 
-          <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm space-y-6">
-            <div className="relative border-l border-gray-100 ml-3 pl-6 space-y-6">
-              <div className="relative">
-                <span className="absolute -left-[31px] top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-rose-500 ring-4 ring-white" />
-                <div className="text-xs text-gray-400 font-bold">Today, 06:45 • 1st Shift</div>
-                <h4 className="text-sm font-bold text-gray-800 mt-1">Issue Escalated (Line 2 Electrical Panel)</h4>
-                <p className="text-xs text-gray-500 mt-0.5">Critical: Intermittent code frequency increased. Line shut down for 10 min.</p>
-              </div>
-
-              <div className="relative">
-                <span className="absolute -left-[31px] top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-500 ring-4 ring-white" />
-                <div className="text-xs text-gray-400 font-bold">Yesterday, 14:00 • 2nd Shift</div>
-                <h4 className="text-sm font-bold text-gray-800 mt-1">Temporary Fix Applied (Line 1 Motor hum)</h4>
-                <p className="text-xs text-gray-500 mt-0.5">Adjusted motor mounts. Vibration reduced. Put on Watch/Monitoring status.</p>
-              </div>
-
-              <div className="relative">
-                <span className="absolute -left-[31px] top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#2E90FA] ring-4 ring-white" />
-                <div className="text-xs text-gray-400 font-bold">Yesterday, 11:30 • 2nd Shift</div>
-                <h4 className="text-sm font-bold text-gray-800 mt-1">Issue Resolved (Line 4 Oil Leak)</h4>
-                <p className="text-xs text-gray-500 mt-0.5">Replaced seals, topped up hydraulic fluid. Verified leak stopped.</p>
-              </div>
-            </div>
-          </div>
-        </div>
 
       </div>
     </StaffLayout>
