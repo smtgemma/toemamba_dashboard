@@ -93,6 +93,21 @@ export default function OperatorHandoffPage() {
     setFormattedDate(`${yyyy}-${mm}-${dd}`);
   }, [userData, linesList, shiftsList]);
 
+  // Stop recording if switching tabs
+  useEffect(() => {
+    if (inputMode !== "voice" && isRecording) {
+      if (mediaRecorder) {
+        try {
+          mediaRecorder.stop();
+          mediaRecorder.stream.getTracks().forEach((track) => track.stop());
+        } catch (e) {
+          console.error("Error stopping recorder on tab change:", e);
+        }
+      }
+      setIsRecording(false);
+    }
+  }, [inputMode, isRecording, mediaRecorder]);
+
   // Audio Recording API
   const handleToggleRecord = async () => {
     if (!isRecording) {
