@@ -154,18 +154,26 @@ export default function OperatorHandoffPage() {
     setStep("processing");
 
     try {
-      const formData = new FormData();
-      formData.append("type", inputMode === "paste" ? "text" : inputMode);
-      formData.append("line", selectedLine);
-      formData.append("shift", selectedShift);
-
+      let payload: any;
       if (inputMode === "paste") {
-        formData.append("content", textNotes);
-      } else if (selectedFile) {
-        formData.append("file", selectedFile);
+        payload = {
+          type: "text",
+          line: selectedLine,
+          shift: selectedShift,
+          content: textNotes
+        };
+      } else {
+        const formData = new FormData();
+        formData.append("type", inputMode);
+        formData.append("line", selectedLine);
+        formData.append("shift", selectedShift);
+        if (selectedFile) {
+          formData.append("file", selectedFile);
+        }
+        payload = formData;
       }
 
-      const res = await analyzeIssue(formData).unwrap();
+      const res = await analyzeIssue(payload).unwrap();
       setAiData(res.data);
       setStep("summary");
       toast.success("AI analysis completed successfully!");
