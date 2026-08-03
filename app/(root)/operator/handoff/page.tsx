@@ -38,7 +38,7 @@ export default function OperatorHandoffPage() {
 
   const [step, setStep] = useState<Step>("input");
   const [inputMode, setInputMode] = useState<"paste" | "voice" | "image">("paste");
-  const [selectedShift, setSelectedShift] = useState("1st Shift");
+  const [selectedShift, setSelectedShift] = useState("");
   const [selectedLine, setSelectedLine] = useState("");
   const [formattedDate, setFormattedDate] = useState("2026-07-30");
 
@@ -59,16 +59,30 @@ export default function OperatorHandoffPage() {
 
   // Auto-fill Operator settings
   useEffect(() => {
-    if (userData?.data?.line) {
-      setSelectedLine(userData?.data?.line);
+    if (userData?.data?.lineId) {
+      setSelectedLine(userData.data.lineId);
+    } else if (userData?.data?.line) {
+      const matchedLine = linesList.find((l: any) => l.name === userData.data.line || l.id === userData.data.line || l._id === userData.data.line);
+      if (matchedLine) {
+        setSelectedLine(matchedLine.id || matchedLine._id);
+      } else {
+        setSelectedLine(userData.data.line);
+      }
     } else if (linesList.length > 0) {
-      setSelectedLine(linesList[0].name);
+      setSelectedLine(linesList[0].id || linesList[0]._id);
     }
 
-    if (userData?.data?.shift) {
-      setSelectedShift(userData?.data?.shift);
+    if (userData?.data?.shiftId) {
+      setSelectedShift(userData.data.shiftId);
+    } else if (userData?.data?.shift) {
+      const matchedShift = shiftsList.find((s: any) => s.name === userData.data.shift || s.id === userData.data.shift || s._id === userData.data.shift);
+      if (matchedShift) {
+        setSelectedShift(matchedShift.id || matchedShift._id);
+      } else {
+        setSelectedShift(userData.data.shift);
+      }
     } else if (shiftsList.length > 0) {
-      setSelectedShift(shiftsList[0].name);
+      setSelectedShift(shiftsList[0].id || shiftsList[0]._id);
     }
 
     // Set today's date
@@ -305,7 +319,7 @@ export default function OperatorHandoffPage() {
             >
               <option value="">Select Line</option>
               {linesList.map((line: any) => (
-                <option key={line.id || line._id} value={line.name}>{line.name}</option>
+                <option key={line.id || line._id} value={line.id || line._id}>{line.name}</option>
               ))}
             </select>
             <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none rotate-90" />
@@ -315,22 +329,23 @@ export default function OperatorHandoffPage() {
         <div className="space-y-2">
           <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Shift</label>
           <div className="grid grid-cols-3 gap-2">
-            {(shiftsList.length > 0 
-              ? shiftsList.map((s: any) => s.name) 
-              : ["1st Shift", "2nd Shift", "3rd Shift"]
-            ).map((s: string) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setSelectedShift(s)}
-                className={cn(
-                  "py-3 px-2 rounded-xl text-xs font-bold border transition-all h-10 truncate",
-                  selectedShift === s ? "border-[#101828] text-[#101828] bg-white shadow-sm" : "border-gray-100 text-gray-400 bg-white hover:bg-gray-50"
-                )}
-              >
-                {s}
-              </button>
-            ))}
+            {shiftsList.length > 0 ? (
+              shiftsList.map((s: any) => (
+                <button
+                  key={s.id || s._id}
+                  type="button"
+                  onClick={() => setSelectedShift(s.id || s._id)}
+                  className={cn(
+                    "py-3 px-2 rounded-xl text-xs font-bold border transition-all h-10 truncate cursor-pointer",
+                    selectedShift === (s.id || s._id) ? "border-[#101828] text-[#101828] bg-white shadow-sm font-black" : "border-gray-100 text-gray-400 bg-white hover:bg-gray-50"
+                  )}
+                >
+                  {s.name}
+                </button>
+              ))
+            ) : (
+              <div className="col-span-3 text-center text-xs text-gray-400 font-medium">Loading shifts...</div>
+            )}
           </div>
         </div>
 
