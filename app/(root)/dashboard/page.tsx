@@ -17,6 +17,7 @@ export default function DashboardPage() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Fetch logged in user details
   const { data: userData } = useGetMeQuery({});
@@ -48,6 +49,8 @@ export default function DashboardPage() {
     "Review reported machine status logs and maintenance tickets in the list below."
   ];
 
+  const visibleBullets = isExpanded ? aiBullets : aiBullets.slice(0, 3);
+
   // Reset to first page when filters change
   React.useEffect(() => {
     setCurrentPage(1);
@@ -72,13 +75,21 @@ export default function DashboardPage() {
           <div className="lg:col-span-2 space-y-3 text-sm text-gray-300 border-r border-gray-800/60 pr-0 lg:pr-6">
             <p className="font-semibold text-gray-200">{aiSummary}</p>
             <ul className="space-y-2.5 list-none">
-              {aiBullets.map((bullet: string, index: number) => (
+              {visibleBullets.map((bullet: string, index: number) => (
                 <li key={index} className="flex items-start gap-2.5">
                   <span className="text-rose-400 mt-0.5">⚠️</span>
                   <span>{bullet}</span>
                 </li>
               ))}
             </ul>
+            {aiBullets.length > 3 && (
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="text-xs font-bold text-purple-300 hover:text-purple-100 transition-colors flex items-center gap-1.5 mt-2 focus:outline-none cursor-pointer"
+              >
+                {isExpanded ? "See Less" : `See More (+${aiBullets.length - 3} items)`}
+              </button>
+            )}
           </div>
 
           <div className="flex flex-col justify-between">
