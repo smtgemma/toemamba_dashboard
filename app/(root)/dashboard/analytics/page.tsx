@@ -33,35 +33,15 @@ export default function AnalyticsPage() {
 
   const apiData = analyticsResponse?.data || {};
 
-  // Parse graphs and fall back to demo sets to keep dashboard populated
-  const mttrData = apiData.mttr?.length ? apiData.mttr : [
-    { name: "Mon", value: 45 },
-    { name: "Tue", value: 38 },
-    { name: "Wed", value: 42 },
-    { name: "Thu", value: 30 },
-    { name: "Fri", value: 35 },
-    { name: "Sat", value: 25 },
-    { name: "Sun", value: 20 },
-  ];
-
-  const downtimeCauses = apiData.downtimeCauses?.length ? apiData.downtimeCauses : [
-    { name: "Electrical", value: 400, color: "#D92D20" },
-    { name: "Mechanical", value: 300, color: "#F79009" },
-    { name: "Software", value: 150, color: "#2E90FA" },
-    { name: "Human Error", value: 100, color: "#667085" },
-  ];
-
-  const shiftPerformance = apiData.shiftPerformance?.length ? apiData.shiftPerformance : [
-    { shift: "Shift 1", issues: 12, completion: 95 },
-    { shift: "Shift 2", issues: 18, completion: 88 },
-    { shift: "Shift 3", issues: 8, completion: 92 },
-  ];
+  const mttrData = apiData.mttrTrend || [];
+  const downtimeCauses = apiData.downtimeCauses || [];
+  const shiftPerformance = apiData.shiftPerformance || [];
 
   const kpiMetrics = apiData.kpiMetrics || {
-    avgMttr: "32m",
-    avgResponseTime: "8.5m",
-    repeatIssueRate: "14%",
-    handoffCompletion: "91.4%"
+    avgMttr: "0m",
+    avgResponseTime: "0m",
+    repeatIssueRate: "0%",
+    handoffCompletionRate: "0%"
   };
 
   return (
@@ -83,36 +63,28 @@ export default function AnalyticsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             title="MTTR (Mean Time to Repair)"
-            value={kpiMetrics.avgMttr || "32m"}
-            change="-12%"
-            isPositive
+            value={kpiMetrics.avgMttr || "0m"}
             icon={Clock}
             color="text-blue-600"
             bg="bg-blue-50"
           />
           <StatCard
             title="Avg. Response Time"
-            value={kpiMetrics.avgResponseTime || "8.5m"}
-            change="-5%"
-            isPositive
+            value={kpiMetrics.avgResponseTime || "0m"}
             icon={Zap}
             color="text-emerald-600"
             bg="bg-emerald-50"
           />
           <StatCard
             title="Repeat Issue Rate"
-            value={kpiMetrics.repeatIssueRate || "14%"}
-            change="+2%"
-            isPositive={false}
+            value={kpiMetrics.repeatIssueRate || "0%"}
             icon={Repeat}
             color="text-orange-600"
             bg="bg-orange-50"
           />
           <StatCard
             title="Handoff Completion"
-            value={kpiMetrics.handoffCompletion || "91.4%"}
-            change="+4%"
-            isPositive
+            value={kpiMetrics.handoffCompletionRate || "0%"}
             icon={FileText}
             color="text-purple-600"
             bg="bg-purple-50"
@@ -176,21 +148,23 @@ export default function AnalyticsPage() {
               </div>
 
               <div className="space-y-4">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Top Keywords</p>
-                <div className="space-y-2">
-                  {[
-                    { tag: "Line 2 Motor", count: 14, color: "bg-red-50 text-red-600" },
-                    { tag: "Material Shortage", count: 12, color: "bg-orange-50 text-orange-600" },
-                    { tag: "Hydraulic Leak", count: 8, color: "bg-blue-50 text-blue-600" },
-                    { tag: "Safety Guard", count: 5, color: "bg-gray-50 text-gray-600" },
-                  ].map((mention) => (
-                    <div key={mention.tag} className="flex items-center justify-between p-3 border border-gray-50 rounded-xl">
-                      <span className={cn("px-2 py-1 rounded-md text-[10px] font-bold", mention.color)}>
-                        {mention.tag}
-                      </span>
-                      <span className="text-xs font-bold text-gray-900">{mention.count}</span>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Issue Categories</p>
+                <div className="space-y-2 max-h-[250px] overflow-y-auto pr-1">
+                  {downtimeCauses.length > 0 ? (
+                    downtimeCauses.map((cause: any) => (
+                      <div key={cause.name} className="flex items-center justify-between p-3 border border-gray-50 rounded-xl animate-in fade-in duration-300">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cause.color }} />
+                          <span className="text-xs font-bold text-gray-700">{cause.name}</span>
+                        </div>
+                        <span className="text-xs font-bold text-gray-900">{cause.value} issues</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-xs text-gray-400 font-medium">
+                      No categories tracked yet
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </div>
