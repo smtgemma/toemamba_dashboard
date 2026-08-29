@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar } from "./Sidebar";
 import Image from "next/image";
 import Link from "next/link";
@@ -70,7 +70,27 @@ export const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  if (isLoading) {
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        Cookies.remove("token");
+        toast.error("Session expired. Please sign in again.");
+        router.push("/signin");
+      } else {
+        const normalizedRole = user.role?.toUpperCase();
+        if (normalizedRole === "OPERATOR") {
+          router.push("/operator");
+        } else if (normalizedRole === "MAINTENANCE" || normalizedRole === "STAFF") {
+          router.push("/staff");
+        }
+      }
+    }
+  }, [user, isLoading, router]);
+
+  const allowedRoles = ["ADMIN", "SUPER_ADMIN", "SUPERVISOR"];
+  const isRoleAllowed = user && allowedRoles.includes(user.role?.toUpperCase() || "");
+
+  if (isLoading || !user || !isRoleAllowed) {
     return <DashboardLayoutSkeleton />;
   }
 

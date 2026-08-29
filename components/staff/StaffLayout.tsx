@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/lib/getCurrentUser";
+import { useRouter } from "next/navigation";
 
 interface StaffLayoutProps {
   children: React.ReactNode;
@@ -16,7 +17,49 @@ interface StaffLayoutProps {
 }
 
 export const StaffLayout = ({ children, category = "Maintenance", showBack, backHref, onBack }: StaffLayoutProps) => {
-  const { user } = useCurrentUser();
+  const { user, isLoading } = useCurrentUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      const normalizedRole = user.role?.toUpperCase();
+      if (category === "Operator") {
+        const allowed = ["OPERATOR", "ADMIN", "SUPER_ADMIN", "SUPERVISOR"];
+        if (!allowed.includes(normalizedRole)) {
+          router.push("/staff");
+        }
+      } else {
+        const allowed = ["MAINTENANCE", "STAFF", "ADMIN", "SUPER_ADMIN", "SUPERVISOR"];
+        if (!allowed.includes(normalizedRole)) {
+          router.push("/operator");
+        }
+      }
+    }
+  }, [user, isLoading, category, router]);
+
+  const normalizedRole = user?.role?.toUpperCase();
+  const isAuthorized = user && (
+    category === "Operator"
+      ? ["OPERATOR", "ADMIN", "SUPER_ADMIN", "SUPERVISOR"].includes(normalizedRole)
+      : ["MAINTENANCE", "STAFF", "ADMIN", "SUPER_ADMIN", "SUPERVISOR"].includes(normalizedRole)
+  );
+
+  if (isLoading || !user || !isAuthorized) {
+    return (
+      <div className="min-h-screen bg-white md:bg-[#F9FAFB] flex justify-center">
+        <div className="w-full max-w-4xl bg-white min-h-screen p-6 animate-pulse space-y-6">
+          <header className="flex h-[80px] items-center justify-between border-b border-gray-100 mb-6">
+            <div className="w-32 h-6 bg-gray-100 rounded-md" />
+            <div className="w-10 h-10 bg-gray-100 rounded-full" />
+          </header>
+          <div className="space-y-4">
+            <div className="w-48 h-8 bg-gray-200 rounded-md" />
+            <div className="w-full h-32 bg-gray-100 rounded-2xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white md:bg-[#F9FAFB] flex justify-center">
