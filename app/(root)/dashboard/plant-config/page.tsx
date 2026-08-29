@@ -176,7 +176,11 @@ export default function PlantConfigPage() {
           </button>
 
           {isShiftsLoading ? (
-            <div className="text-sm text-gray-400 py-2">Loading shifts...</div>
+            <div className="space-y-3 animate-pulse">
+              {[1, 2].map((n) => (
+                <div key={n} className="h-14 bg-gray-50 border border-gray-100 rounded-xl" />
+              ))}
+            </div>
           ) : (
             <div className="space-y-3">
               {shifts.length > 0 ? (
@@ -220,7 +224,11 @@ export default function PlantConfigPage() {
           </button>
 
           {isDeptsLoading ? (
-            <div className="text-sm text-gray-400 py-2">Loading departments...</div>
+            <div className="space-y-3 animate-pulse">
+              {[1, 2].map((n) => (
+                <div key={n} className="h-14 bg-gray-50 border border-gray-100 rounded-xl" />
+              ))}
+            </div>
           ) : (
             <div className="space-y-3">
               {departments.length > 0 ? (
@@ -273,7 +281,11 @@ export default function PlantConfigPage() {
           </button>
 
           {isLinesLoading ? (
-            <div className="text-sm text-gray-400 py-2">Loading lines...</div>
+            <div className="space-y-3 animate-pulse">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="h-14 bg-gray-50 border border-gray-100 rounded-xl" />
+              ))}
+            </div>
           ) : (
             <div className="space-y-3">
               {lines.length > 0 ? (

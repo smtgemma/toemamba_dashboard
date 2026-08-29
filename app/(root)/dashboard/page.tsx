@@ -117,9 +117,29 @@ export default function DashboardPage() {
 
       <div className="space-y-4">
         {isIssuesLoading ? (
-          <div className="text-center py-20 bg-white border border-gray-100 rounded-2xl flex items-center justify-center gap-2">
-            <Loader2 className="w-5 h-5 text-[#101828] animate-spin" />
-            <span className="text-xs text-gray-400 font-semibold">Loading plant issues...</span>
+          <div className="space-y-4">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm animate-pulse space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 h-5 bg-gray-100 rounded-md" />
+                    <div className="w-12 h-5 bg-gray-100 rounded-md" />
+                  </div>
+                  <div className="w-16 h-6 bg-gray-100 rounded-full" />
+                </div>
+                <div className="space-y-2">
+                  <div className="w-full h-4 bg-gray-100 rounded-md" />
+                  <div className="w-5/6 h-4 bg-gray-100 rounded-md" />
+                </div>
+                <div className="flex items-center justify-between pt-3 border-t border-gray-50">
+                  <div className="flex gap-4">
+                    <div className="w-16 h-4 bg-gray-50 rounded-md" />
+                    <div className="w-16 h-4 bg-gray-50 rounded-md" />
+                  </div>
+                  <div className="w-24 h-4 bg-gray-50 rounded-md" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : paginatedIssues.length > 0 ? (
           paginatedIssues.map((issue: any) => (
