@@ -16,6 +16,54 @@ interface DashboardLayoutProps {
   role: string;
 }
 
+const DashboardLayoutSkeleton = () => (
+  <div className="flex min-h-screen bg-[#F9FAFB]">
+    {/* Sidebar Skeleton for Desktop */}
+    <div className="hidden lg:block w-[260px] bg-white border-r border-gray-100 p-6 space-y-8 animate-pulse h-screen sticky top-0">
+      <div className="w-[150px] h-6 bg-gray-100 rounded-md" />
+      <div className="space-y-4 pt-10">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <div key={n} className="flex items-center gap-3 py-3 px-4 rounded-xl bg-gray-50/50">
+            <div className="w-5 h-5 bg-gray-100 rounded-md" />
+            <div className="w-24 h-4 bg-gray-100 rounded-md" />
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Main Content Area */}
+    <div className="flex-1 flex flex-col min-h-screen">
+      {/* Header Skeleton for Mobile */}
+      <header className="lg:hidden bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between animate-pulse">
+        <div className="w-[150px] h-6 bg-gray-100 rounded-md" />
+        <div className="w-6 h-6 bg-gray-100 rounded-full" />
+      </header>
+
+      {/* Main Body Skeleton */}
+      <div className="p-6 lg:p-8 flex-1 space-y-6 animate-pulse">
+        {/* Header Title placeholder */}
+        <div className="flex justify-between items-center">
+          <div className="space-y-2">
+            <div className="w-48 h-7 bg-gray-200 rounded-md" />
+            <div className="w-32 h-4 bg-gray-200 rounded-md" />
+          </div>
+          <div className="w-12 h-12 bg-gray-200 rounded-full" />
+        </div>
+
+        {/* Content body placeholder */}
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+          <div className="w-full h-8 bg-gray-100 rounded-xl" />
+          <div className="space-y-3">
+            <div className="w-full h-4 bg-gray-100 rounded-md" />
+            <div className="w-5/6 h-4 bg-gray-100 rounded-md" />
+            <div className="w-4/5 h-4 bg-gray-100 rounded-md" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 export const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
   const { user, isAdmin, isLoading } = useCurrentUser();
   const router = useRouter();
@@ -23,11 +71,7 @@ export const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F9FAFB]">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-emerald-500" />
-      </div>
-    );
+    return <DashboardLayoutSkeleton />;
   }
 
   if (isAdmin) {
